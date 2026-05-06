@@ -4,314 +4,576 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Sentinel — Smart Surveillance</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#090909;--sf:#111;--sf2:#161616;--sf3:#1e1e1e;
-  --bd:rgba(255,255,255,.07);--bd2:rgba(255,255,255,.13);
-  --tx:#f5f5f7;--tx2:#86868b;--tx3:#48484a;
-  --ac:#0a84ff;--gr:#30d158;--rd:#ff453a;--am:#ff9f0a;--pu:#bf5af2;
-  --r:14px;--rs:10px;
+  --bg:#07080a;--s1:#0e0f12;--s2:#141518;--s3:#1a1b1f;--s4:#212227;
+  --b1:rgba(255,255,255,.06);--b2:rgba(255,255,255,.1);--b3:rgba(255,255,255,.16);
+  --t1:#f0f0f2;--t2:#8a8a96;--t3:#52525e;--t4:#32323a;
+  --blue:#2d7ef7;--blue2:rgba(45,126,247,.15);--blue3:rgba(45,126,247,.08);
+  --green:#23c55e;--green2:rgba(35,197,94,.15);
+  --red:#ef4343;--red2:rgba(239,67,67,.15);
+  --amber:#f59e0b;--amber2:rgba(245,158,11,.15);
+  --purple:#a855f7;--purple2:rgba(168,85,247,.15);
+  --r:12px;--rs:8px;
+  --sidebar:220px;--panel:272px;--nav:58px;
 }
-html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden}
-::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--sf3);border-radius:4px}
-@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-@keyframes slideIn{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:translateX(0)}}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(10,132,255,.4)}50%{box-shadow:0 0 0 8px rgba(10,132,255,0)}}
-@keyframes glow{0%,100%{box-shadow:0 0 40px rgba(10,132,255,.4)}50%{box-shadow:0 0 80px rgba(10,132,255,.8)}}
-@keyframes fillup{from{width:0}to{width:100%}}
-@keyframes dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
-@keyframes scan{0%{background-position-y:0}100%{background-position-y:80px}}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+html,body{height:100%;background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden;font-size:14px}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:var(--s4);border-radius:3px}
 
-/* ===== LOGIN ===== */
-#login{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:var(--bg);animation:fadeUp .4s ease}
-.lbox{width:380px;background:var(--sf);border:1px solid var(--bd2);border-radius:20px;padding:44px 36px;display:flex;flex-direction:column;gap:20px;box-shadow:0 32px 80px rgba(0,0,0,.9)}
-.llogo{width:56px;height:56px;background:var(--ac);border-radius:18px;display:grid;place-items:center;font-size:28px;margin:0 auto 4px;box-shadow:0 0 32px rgba(10,132,255,.5)}
-.ltitle{font-size:24px;font-weight:700;letter-spacing:-.6px;text-align:center}
-.lsub{font-size:13px;color:var(--tx3);text-align:center;margin-top:-12px}
-.linput{width:100%;background:var(--sf2);border:1.5px solid var(--bd2);border-radius:10px;padding:12px 14px;font-size:14px;color:var(--tx);font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s}
-.linput:focus{border-color:var(--ac)}
-.linput::placeholder{color:var(--tx3)}
-.lbtn{width:100%;background:var(--ac);border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:600;color:#fff;cursor:pointer;font-family:'DM Sans',sans-serif;transition:opacity .2s;letter-spacing:-.2px}
-.lbtn:hover{opacity:.85}
-.lerr{font-size:12px;color:var(--rd);text-align:center;font-family:'DM Mono',monospace;display:none}
-.lhint{font-size:11px;color:var(--tx3);text-align:center;font-family:'DM Mono',monospace}
+@keyframes up{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes in{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:translateX(0)}}
+@keyframes glow{0%,100%{box-shadow:0 0 30px rgba(45,126,247,.35)}50%{box-shadow:0 0 60px rgba(45,126,247,.65)}}
+@keyframes fill{from{width:0}to{width:100%}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.65)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.15}}
+@keyframes scanline{0%{transform:translateY(-100%)}100%{transform:translateY(100%)}}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-/* ===== SPLASH ===== */
-#splash{position:fixed;inset:0;z-index:9998;display:none;flex-direction:column;align-items:center;justify-content:center;gap:22px;background:var(--bg);transition:opacity .6s,transform .6s}
-#splash.out{opacity:0;transform:scale(1.03);pointer-events:none}
-.slogo{width:80px;height:80px;background:var(--ac);border-radius:24px;display:grid;place-items:center;font-size:40px;animation:glow 2s ease-in-out infinite}
-.sbar{width:220px;height:2px;background:var(--sf3);border-radius:2px;overflow:hidden}
-.sfill{height:100%;background:var(--ac);animation:fillup 2.4s ease forwards}
-.smsg{font-size:11px;color:var(--tx3);font-family:'DM Mono',monospace}
+/* ── LOGIN ─────────────────────────────────────────── */
+#loginScreen{
+  position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;
+  background:var(--bg);animation:up .5s ease;
+}
+#loginScreen::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(45,126,247,.08) 0%,transparent 60%);
+  pointer-events:none;
+}
+.lcard{
+  width:360px;background:var(--s1);border:1px solid var(--b2);border-radius:20px;
+  padding:40px 36px;display:flex;flex-direction:column;gap:22px;
+  box-shadow:0 40px 100px rgba(0,0,0,.9),0 0 0 1px rgba(255,255,255,.04);
+  position:relative;
+}
+.lcard::before{
+  content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:120px;height:1px;background:linear-gradient(90deg,transparent,rgba(45,126,247,.6),transparent);
+}
+.lmark{
+  width:48px;height:48px;background:var(--blue);border-radius:14px;
+  display:grid;place-items:center;margin:0 auto;
+  box-shadow:0 0 32px rgba(45,126,247,.5);
+  animation:glow 3s ease-in-out infinite;
+}
+.lmark svg{width:24px;height:24px;stroke:white;fill:none;stroke-width:2;stroke-linecap:round}
+.lhead{text-align:center}
+.lhead h1{font-size:22px;font-weight:700;letter-spacing:-.6px;color:var(--t1)}
+.lhead p{font-size:12.5px;color:var(--t3);margin-top:4px;letter-spacing:.1px}
+.lfield{display:flex;flex-direction:column;gap:8px}
+.lfieldlabel{font-size:11px;font-weight:600;color:var(--t3);letter-spacing:.6px;text-transform:uppercase}
+.linp{
+  background:var(--s2);border:1px solid var(--b2);border-radius:var(--rs);
+  padding:11px 14px;font-size:13.5px;color:var(--t1);
+  font-family:'Inter',sans-serif;outline:none;width:100%;transition:all .2s;
+}
+.linp:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(45,126,247,.12);background:var(--s1)}
+.linp::placeholder{color:var(--t4)}
+.lbtn{
+  background:var(--blue);border:none;border-radius:var(--rs);padding:12px;
+  font-size:13.5px;font-weight:600;color:#fff;cursor:pointer;
+  font-family:'Inter',sans-serif;transition:all .2s;letter-spacing:.1px;
+  box-shadow:0 4px 20px rgba(45,126,247,.35);
+}
+.lbtn:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 6px 28px rgba(45,126,247,.45)}
+.lbtn:active{transform:translateY(0)}
+.lerr{font-size:12px;color:var(--red);text-align:center;font-family:'JetBrains Mono',monospace;display:none}
+.lhint{font-size:11px;color:var(--t4);text-align:center;font-family:'JetBrains Mono',monospace;letter-spacing:.3px}
 
-/* ===== LAYOUT ===== */
-.app{display:grid;grid-template-rows:60px 1fr;grid-template-columns:215px 1fr 285px;height:100vh;overflow:hidden}
+/* ── SPLASH ─────────────────────────────────────────── */
+#splash{
+  position:fixed;inset:0;z-index:9998;display:none;flex-direction:column;
+  align-items:center;justify-content:center;gap:24px;background:var(--bg);
+  transition:opacity .7s,transform .7s;
+}
+#splash.out{opacity:0;transform:scale(1.04);pointer-events:none}
+.smark{
+  width:72px;height:72px;background:var(--blue);border-radius:20px;
+  display:grid;place-items:center;animation:glow 2s ease-in-out infinite;
+}
+.smark svg{width:36px;height:36px;stroke:white;fill:none;stroke-width:1.8;stroke-linecap:round}
+.sname{font-size:26px;font-weight:700;letter-spacing:-.8px;color:var(--t1)}
+.ssub{font-size:12px;color:var(--t3);font-family:'JetBrains Mono',monospace;letter-spacing:.5px}
+.sbar{width:180px;height:1.5px;background:var(--s3);border-radius:2px;overflow:hidden}
+.sfill{height:100%;background:var(--blue);animation:fill 2.5s ease forwards}
+.smsg{font-size:11px;color:var(--t4);font-family:'JetBrains Mono',monospace;margin-top:-8px;letter-spacing:.3px}
 
-/* ===== NAVBAR ===== */
-nav{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;padding:0 22px;background:rgba(9,9,9,.94);backdrop-filter:blur(24px);border-bottom:1px solid var(--bd);z-index:100}
+/* ── LAYOUT ─────────────────────────────────────────── */
+.app{display:grid;grid-template-rows:var(--nav) 1fr;grid-template-columns:var(--sidebar) 1fr var(--panel);height:100vh;overflow:hidden}
+
+/* ── NAVBAR ─────────────────────────────────────────── */
+nav{
+  grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;background:rgba(7,8,10,.88);backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--b1);z-index:100;
+}
 .nbrand{display:flex;align-items:center;gap:10px}
-.nlogo{width:30px;height:30px;background:var(--ac);border-radius:9px;display:grid;place-items:center;font-size:16px;box-shadow:0 0 18px rgba(10,132,255,.4)}
-.ntitle{font-size:15px;font-weight:600;letter-spacing:-.3px}
-.nsub{font-size:10px;color:var(--tx3)}
-.spill{display:flex;align-items:center;gap:7px;padding:5px 12px;border-radius:20px;border:1px solid var(--bd2);background:var(--sf)}
-.sdot{width:7px;height:7px;border-radius:50%;background:var(--gr);box-shadow:0 0 8px var(--gr);animation:dot 2s ease-in-out infinite}
-.sdot.off{background:var(--rd);box-shadow:0 0 8px var(--rd);animation:none}
-.slbl{font-size:11px;font-family:'DM Mono',monospace;color:var(--tx2);font-weight:500}
-.bbdg{font-size:10px;font-family:'DM Mono',monospace;padding:2px 9px;border-radius:20px;border:1px solid;margin-left:6px;transition:all .3s}
-.bbdg.demo{background:rgba(255,159,10,.1);border-color:rgba(255,159,10,.3);color:var(--am)}
-.bbdg.live{background:rgba(48,209,88,.1);border-color:rgba(48,209,88,.3);color:var(--gr)}
-.nav-r{display:flex;align-items:center;gap:14px}
-.ntime{font-family:'DM Mono',monospace;font-size:12px;color:var(--tx3)}
-.avt{width:34px;height:34px;border-radius:50%;background:var(--ac);border:2px solid rgba(10,132,255,.4);display:grid;place-items:center;font-size:13px;font-weight:700;cursor:pointer;position:relative;transition:border-color .2s}
-.avt:hover{border-color:var(--ac)}
-.umenu{position:absolute;top:44px;right:0;background:var(--sf);border:1px solid var(--bd2);border-radius:12px;padding:6px;min-width:160px;display:none;z-index:999;box-shadow:0 12px 40px rgba(0,0,0,.7);animation:fadeUp .15s ease}
+.nmark{
+  width:28px;height:28px;background:var(--blue);border-radius:8px;
+  display:grid;place-items:center;
+}
+.nmark svg{width:14px;height:14px;stroke:white;fill:none;stroke-width:2;stroke-linecap:round}
+.ntitle{font-size:14px;font-weight:700;letter-spacing:-.4px}
+.ndivider{width:1px;height:16px;background:var(--b2);margin:0 4px}
+.nsub{font-size:11px;color:var(--t3);letter-spacing:.1px}
+.npill{
+  display:flex;align-items:center;gap:6px;padding:5px 12px;
+  border-radius:20px;border:1px solid var(--b2);background:var(--s1);
+}
+.ndot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s ease-in-out infinite}
+.ndot.off{background:var(--red);box-shadow:0 0 8px var(--red);animation:none}
+.nlbl{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--t2);font-weight:500;letter-spacing:.3px}
+.nstatus{
+  font-size:10px;font-family:'JetBrains Mono',monospace;padding:3px 9px;
+  border-radius:20px;border:1px solid;margin-left:6px;transition:all .3s;
+}
+.nstatus.demo{background:var(--amber2);border-color:rgba(245,158,11,.3);color:var(--amber)}
+.nstatus.live{background:var(--green2);border-color:rgba(35,197,94,.3);color:var(--green)}
+.nav-r{display:flex;align-items:center;gap:12px}
+.ntime{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--t3);letter-spacing:.5px}
+.avt{
+  width:30px;height:30px;border-radius:50%;background:var(--blue);
+  display:grid;place-items:center;font-size:12px;font-weight:700;
+  cursor:pointer;position:relative;transition:box-shadow .2s;color:white;
+}
+.avt:hover{box-shadow:0 0 0 3px rgba(45,126,247,.25)}
+.umenu{
+  position:absolute;top:38px;right:0;background:var(--s2);border:1px solid var(--b2);
+  border-radius:12px;padding:6px;min-width:168px;display:none;z-index:999;
+  box-shadow:0 16px 48px rgba(0,0,0,.8);animation:up .15s ease;
+}
 .umenu.show{display:block}
-.umi{padding:9px 13px;border-radius:8px;font-size:13px;cursor:pointer;color:var(--tx2);transition:all .15s;display:flex;align-items:center;gap:8px}
-.umi:hover{background:var(--sf3);color:var(--tx)}
-.umi.red{color:var(--rd)}
-.udiv{height:1px;background:var(--bd);margin:4px 0}
+.umhead{padding:8px 12px 6px;font-size:11px;font-weight:600;color:var(--t3);letter-spacing:.5px;text-transform:uppercase}
+.udi{height:1px;background:var(--b1);margin:4px 0}
+.umi{padding:8px 12px;border-radius:7px;font-size:13px;cursor:pointer;color:var(--t2);transition:all .15s;display:flex;align-items:center;gap:8px}
+.umi:hover{background:var(--s3);color:var(--t1)}
+.umi svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;flex-shrink:0}
+.umi.danger{color:var(--red)}
 
-/* ===== SIDEBAR ===== */
-aside{background:var(--sf);border-right:1px solid var(--bd);padding:16px 10px;display:flex;flex-direction:column;gap:2px}
-.sec{font-size:9.5px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--tx3);padding:8px 10px 4px;margin-top:6px}
-.ni{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--rs);cursor:pointer;font-size:13.5px;font-weight:450;color:var(--tx2);transition:all .15s;position:relative}
-.ni:hover{background:var(--sf3);color:var(--tx)}
-.ni.on{background:var(--sf3);color:var(--tx)}
-.ni.on::before{content:'';position:absolute;left:0;top:20%;height:60%;width:3px;background:var(--ac);border-radius:0 3px 3px 0}
-.nbdg{margin-left:auto;background:var(--rd);color:#fff;font-size:9.5px;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:grid;place-items:center;padding:0 4px;font-family:'DM Mono',monospace}
-.cami{display:flex;align-items:center;gap:10px;padding:8px 12px;font-size:13px;color:var(--tx2)}
+/* ── SIDEBAR ─────────────────────────────────────────── */
+aside{
+  background:var(--s1);border-right:1px solid var(--b1);
+  padding:14px 10px;display:flex;flex-direction:column;gap:1px;overflow:hidden;
+}
+.nsec{
+  font-size:9.5px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;
+  color:var(--t4);padding:10px 10px 4px;margin-top:4px;
+}
+.nitem{
+  display:flex;align-items:center;gap:9px;padding:8px 11px;
+  border-radius:var(--rs);cursor:pointer;font-size:13px;font-weight:450;
+  color:var(--t3);transition:all .15s;position:relative;
+}
+.nitem:hover{background:var(--s3);color:var(--t2)}
+.nitem.on{background:var(--blue3);color:var(--t1)}
+.nitem.on::before{
+  content:'';position:absolute;left:0;top:22%;height:56%;width:2.5px;
+  background:var(--blue);border-radius:0 3px 3px 0;
+}
+.nitem svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;flex-shrink:0;opacity:.7}
+.nitem.on svg,.nitem:hover svg{opacity:1}
+.nbadge{
+  margin-left:auto;background:var(--red);color:#fff;font-size:9px;font-weight:700;
+  min-width:17px;height:17px;border-radius:9px;display:grid;place-items:center;
+  padding:0 4px;font-family:'JetBrains Mono',monospace;
+}
+.camitem{display:flex;align-items:center;gap:9px;padding:7px 11px;font-size:12.5px;color:var(--t3)}
+.camdot{width:5px;height:5px;border-radius:50%;margin-left:auto}
 
-/* ===== MAIN ===== */
-main{overflow-y:auto;padding:20px;background:var(--bg)}
+/* ── MAIN ─────────────────────────────────────────── */
+main{overflow-y:auto;padding:20px;background:var(--bg);scroll-behavior:smooth}
 
-/* ===== PAGES ===== */
-.page{display:none;flex-direction:column;gap:16px;animation:fadeUp .3s ease both}
+/* ── PAGES ─────────────────────────────────────────── */
+.page{display:none;flex-direction:column;gap:16px;animation:up .3s ease both}
 .page.on{display:flex}
-.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px}
-.pt{font-size:22px;font-weight:600;letter-spacing:-.5px}
-.ps{font-size:13px;color:var(--tx3);margin-top:3px}
-.row{display:flex;gap:8px;flex-wrap:wrap}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:9px;font-size:13px;font-weight:500;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all .15s;white-space:nowrap}
-.bp{background:var(--ac);color:#fff}.bp:hover{opacity:.85}
-.bs{background:var(--sf2);color:var(--tx2);border:1px solid var(--bd2)}.bs:hover{background:var(--sf3);color:var(--tx)}
-.br{background:rgba(255,69,58,.12);color:var(--rd);border:1px solid rgba(255,69,58,.25)}.br:hover{background:rgba(255,69,58,.22)}
+.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:2px}
+.ph-left h1{font-size:21px;font-weight:700;letter-spacing:-.6px}
+.ph-left p{font-size:12.5px;color:var(--t3);margin-top:3px}
+.ph-right{display:flex;gap:8px;flex-wrap:wrap}
+.btn{
+  display:inline-flex;align-items:center;gap:6px;padding:7px 14px;
+  border-radius:var(--rs);font-size:12.5px;font-weight:500;cursor:pointer;
+  border:none;font-family:'Inter',sans-serif;transition:all .15s;white-space:nowrap;
+}
+.btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.btn-p{background:var(--blue);color:#fff;box-shadow:0 2px 12px rgba(45,126,247,.3)}
+.btn-p:hover{opacity:.88;transform:translateY(-1px)}
+.btn-s{background:var(--s2);color:var(--t2);border:1px solid var(--b2)}
+.btn-s:hover{background:var(--s3);color:var(--t1)}
+.btn-d{background:var(--red2);color:var(--red);border:1px solid rgba(239,67,67,.2)}
+.btn-d:hover{background:rgba(239,67,67,.22)}
 
-/* ===== VIDEO ===== */
-.vwrap{position:relative;border-radius:var(--r);overflow:hidden;background:#000;border:1px solid var(--bd);aspect-ratio:16/9;flex-shrink:0;box-shadow:0 8px 48px rgba(0,0,0,.8)}
-.vbg{width:100%;height:100%;background:radial-gradient(ellipse at 20% 30%,rgba(10,132,255,.07),transparent 50%),radial-gradient(ellipse at 80% 70%,rgba(191,90,242,.05),transparent 50%),#050505;display:grid;place-items:center;position:relative;overflow:hidden}
-.vbg::after{content:'';position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,255,255,.013) 2px,rgba(255,255,255,.013) 4px);animation:scan 10s linear infinite}
+/* ── VIDEO ─────────────────────────────────────────── */
+.vwrap{
+  position:relative;border-radius:var(--r);overflow:hidden;
+  background:#000;border:1px solid var(--b1);
+  aspect-ratio:16/9;flex-shrink:0;
+  box-shadow:0 8px 60px rgba(0,0,0,.85);
+}
+.vbg{
+  width:100%;height:100%;
+  background:radial-gradient(ellipse at 25% 35%,rgba(45,126,247,.06) 0%,transparent 55%),
+             radial-gradient(ellipse at 75% 65%,rgba(168,85,247,.04) 0%,transparent 55%),#060709;
+  display:grid;place-items:center;position:relative;overflow:hidden;
+}
+/* Scanline */
+.vbg::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,255,255,.011) 2px,rgba(255,255,255,.011) 4px);
+}
+/* Scan sweep */
+.vsweep{
+  position:absolute;left:0;right:0;height:120px;pointer-events:none;
+  background:linear-gradient(180deg,transparent 0%,rgba(45,126,247,.04) 50%,transparent 100%);
+  animation:scanline 6s linear infinite;
+}
 .vreal{width:100%;height:100%;object-fit:cover;display:block}
-.nofeed{text-align:center;z-index:2;position:relative}
-.nofeed p{font-size:13px;color:var(--tx3)}
-.nofeed small{font-size:11px;color:var(--tx3);opacity:.5;font-family:'DM Mono',monospace;display:block;margin-top:4px}
-.cor{position:absolute;width:18px;height:18px;opacity:.5}
-.ctl{top:12px;left:12px;border-top:2px solid var(--ac);border-left:2px solid var(--ac)}
-.ctr{top:12px;right:12px;border-top:2px solid var(--ac);border-right:2px solid var(--ac)}
-.cbl{bottom:12px;left:12px;border-bottom:2px solid var(--ac);border-left:2px solid var(--ac)}
-.cbr{bottom:12px;right:12px;border-bottom:2px solid var(--ac);border-right:2px solid var(--ac)}
-.vhud{position:absolute;bottom:12px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:flex-end}
-.ctag{background:rgba(0,0,0,.7);backdrop-filter:blur(12px);border:1px solid var(--bd2);border-radius:8px;padding:5px 10px;font-size:10px;font-family:'DM Mono',monospace;color:var(--tx2)}
-.livebdg{display:flex;align-items:center;gap:5px;background:rgba(255,69,58,.15);border:1px solid rgba(255,69,58,.3);border-radius:8px;padding:5px 10px;font-size:10.5px;font-weight:600;color:var(--rd);font-family:'DM Mono',monospace}
-.ldot{width:6px;height:6px;border-radius:50%;background:var(--rd);animation:blink 1s ease-in-out infinite}
-.bbox{position:absolute;border:1.5px solid;border-radius:4px;pointer-events:none;animation:fadeUp .3s ease both}
-.blbl{position:absolute;top:-22px;left:-1px;font-size:9.5px;font-weight:600;font-family:'DM Mono',monospace;padding:2px 7px;border-radius:4px;white-space:nowrap}
-.bbox.face{border-color:var(--pu)}.bbox.face .blbl{background:var(--pu);color:#fff}
-.bbox.unknown{border-color:var(--rd)}.bbox.unknown .blbl{background:var(--rd);color:#fff}
-.bbox.vehicle{border-color:var(--ac)}.bbox.vehicle .blbl{background:var(--ac);color:#fff}
-.bbox.qr{border-color:var(--gr)}.bbox.qr .blbl{background:var(--gr);color:#000}
-.bbox.object{border-color:var(--am)}.bbox.object .blbl{background:var(--am);color:#000}
-#bboxL{position:absolute;inset:0;pointer-events:none}
+.vnofeed{text-align:center;z-index:2;position:relative}
+.vnofeed svg{opacity:.08;display:block;margin:0 auto 14px}
+.vnofeed p{font-size:13px;color:var(--t3);font-weight:500}
+.vnofeed small{font-size:11px;color:var(--t4);font-family:'JetBrains Mono',monospace;display:block;margin-top:4px;letter-spacing:.2px}
 
-/* ===== STATS ===== */
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.sc{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rs);padding:14px 16px;transition:all .2s;cursor:default}
-.sc:hover{border-color:var(--bd2);transform:translateY(-2px)}
-.sl{font-size:10px;color:var(--tx3);margin-bottom:7px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
-.sv{font-size:28px;font-weight:700;letter-spacing:-1.5px;line-height:1}
-.ss{font-size:10.5px;color:var(--tx3);margin-top:4px;font-family:'DM Mono',monospace}
+/* Corner marks */
+.vcor{position:absolute;width:16px;height:16px;opacity:.4}
+.vcor-tl{top:12px;left:12px;border-top:1.5px solid var(--blue);border-left:1.5px solid var(--blue)}
+.vcor-tr{top:12px;right:12px;border-top:1.5px solid var(--blue);border-right:1.5px solid var(--blue)}
+.vcor-bl{bottom:12px;left:12px;border-bottom:1.5px solid var(--blue);border-left:1.5px solid var(--blue)}
+.vcor-br{bottom:12px;right:12px;border-bottom:1.5px solid var(--blue);border-right:1.5px solid var(--blue)}
 
-/* ===== CHARTS PAGE ===== */
-.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.ccard{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:20px}
-.ct{font-size:13.5px;font-weight:600;margin-bottom:2px}
-.cs{font-size:11.5px;color:var(--tx3);margin-bottom:18px}
-.cw{position:relative;height:190px}
+.vhud{position:absolute;bottom:10px;left:10px;right:10px;display:flex;justify-content:space-between;align-items:flex-end}
+.vcamtag{
+  background:rgba(0,0,0,.72);backdrop-filter:blur(14px);
+  border:1px solid var(--b2);border-radius:7px;
+  padding:4px 10px;font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--t2);letter-spacing:.3px;
+}
+.vlive{
+  display:flex;align-items:center;gap:5px;
+  background:rgba(239,67,67,.12);border:1px solid rgba(239,67,67,.28);
+  border-radius:7px;padding:4px 10px;font-size:10px;font-weight:600;
+  color:var(--red);font-family:'JetBrains Mono',monospace;letter-spacing:.5px;
+}
+.vlivedot{width:5px;height:5px;border-radius:50%;background:var(--red);animation:blink 1.2s ease-in-out infinite}
 
-/* ===== RIGHT PANEL ===== */
-.rp{background:var(--sf);border-left:1px solid var(--bd);display:flex;flex-direction:column;overflow:hidden}
-.rph{padding:15px 16px 12px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.rpt{font-size:13px;font-weight:600}
-.rpb{font-size:10px;font-family:'DM Mono',monospace;background:var(--sf3);border:1px solid var(--bd2);padding:2px 8px;border-radius:20px;color:var(--tx2)}
-.dl{flex:1;overflow-y:auto;padding:8px}
-.di{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;transition:background .15s;animation:slideIn .25s ease both}
-.di:hover{background:var(--sf3)}
-.dd{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.dd.face{background:var(--pu);box-shadow:0 0 6px var(--pu)}
-.dd.unknown{background:var(--rd);box-shadow:0 0 6px var(--rd)}
-.dd.vehicle{background:var(--ac);box-shadow:0 0 6px var(--ac)}
-.dd.qr{background:var(--gr);box-shadow:0 0 6px var(--gr)}
-.dd.object{background:var(--am);box-shadow:0 0 6px var(--am)}
+/* Bboxes */
+.bbox{position:absolute;border:1.5px solid;border-radius:3px;pointer-events:none;animation:up .25s ease both}
+.bbox-lbl{position:absolute;top:-20px;left:-1px;font-size:9px;font-weight:600;font-family:'JetBrains Mono',monospace;padding:2px 6px;border-radius:3px;white-space:nowrap;letter-spacing:.3px}
+.bbox.face{border-color:var(--purple)}.bbox.face .bbox-lbl{background:var(--purple);color:#fff}
+.bbox.unknown{border-color:var(--red)}.bbox.unknown .bbox-lbl{background:var(--red);color:#fff}
+.bbox.vehicle{border-color:var(--blue)}.bbox.vehicle .bbox-lbl{background:var(--blue);color:#fff}
+.bbox.qr{border-color:var(--green)}.bbox.qr .bbox-lbl{background:var(--green);color:#000}
+.bbox.object{border-color:var(--amber)}.bbox.object .bbox-lbl{background:var(--amber);color:#000}
+#bboxLayer{position:absolute;inset:0;pointer-events:none}
 
-/* ===== ALERTS ===== */
-.ai{display:flex;align-items:center;gap:14px;background:var(--sf);border:1px solid var(--bd);border-radius:var(--rs);padding:13px 16px;animation:slideIn .2s ease both;transition:filter .15s}
-.ai:hover{filter:brightness(1.07)}
-.ai.critical{border-color:rgba(255,69,58,.35);background:rgba(255,69,58,.04)}
-.ai.warning{border-color:rgba(255,159,10,.28)}
-.aico{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:18px;flex-shrink:0}
-.abdy{flex:1;min-width:0}
-.atit{font-size:13.5px;font-weight:500}
-.adsc{font-size:12px;color:var(--tx2);margin-top:2px}
-.atim{font-size:11px;font-family:'DM Mono',monospace;color:var(--tx3);flex-shrink:0}
-.tag{font-size:10px;font-weight:600;padding:2px 9px;border-radius:20px;font-family:'DM Mono',monospace;flex-shrink:0}
-.tag.critical{background:rgba(255,69,58,.2);color:var(--rd)}
-.tag.warning{background:rgba(255,159,10,.2);color:var(--am)}
-.tag.info{background:rgba(10,132,255,.2);color:var(--ac)}
+/* ── STAT CARDS ─────────────────────────────────────── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.scard{
+  background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);
+  padding:16px 18px;transition:all .2s;cursor:default;
+}
+.scard:hover{border-color:var(--b2);transform:translateY(-2px)}
+.scard-label{font-size:10px;color:var(--t3);margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px}
+.scard-val{font-size:30px;font-weight:700;letter-spacing:-1.5px;line-height:1}
+.scard-sub{font-size:10.5px;color:var(--t4);margin-top:5px;font-family:'JetBrains Mono',monospace}
+.scard-bar{height:2px;border-radius:2px;margin-top:14px;opacity:.4}
 
-/* ===== LOGS ===== */
-.ltbl{width:100%;border-collapse:collapse}
-.ltbl thead th{background:var(--sf2);padding:10px 16px;text-align:left;font-size:10.5px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid var(--bd)}
-.ltbl tbody tr{border-bottom:1px solid var(--bd);transition:background .15s}
-.ltbl tbody tr:hover{background:var(--sf3)}
-.ltbl td{padding:10px 16px;font-size:12.5px}
-.pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;font-family:'DM Mono',monospace}
-.pill::before{content:'●';font-size:7px}
-.pill.face{background:rgba(191,90,242,.15);color:var(--pu)}
-.pill.unknown{background:rgba(255,69,58,.15);color:var(--rd)}
-.pill.vehicle{background:rgba(10,132,255,.15);color:var(--ac)}
-.pill.qr{background:rgba(48,209,88,.15);color:var(--gr)}
-.pill.object{background:rgba(255,159,10,.15);color:var(--am)}
+/* ── ANALYTICS ─────────────────────────────────────── */
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ccard{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:20px}
+.ccard-title{font-size:13px;font-weight:600;margin-bottom:2px;letter-spacing:-.2px}
+.ccard-sub{font-size:11px;color:var(--t3);margin-bottom:18px}
+.ccard-body{position:relative;height:188px}
 
-/* ===== SETTINGS ===== */
-.sect{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden;margin-bottom:14px}
-.stit{padding:12px 20px;border-bottom:1px solid var(--bd);font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.7px}
-.sr{display:flex;align-items:center;gap:15px;padding:15px 20px;border-bottom:1px solid var(--bd);transition:background .15s}
-.sr:last-child{border-bottom:none}
-.sr:hover{background:var(--sf3)}
-.sico{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;font-size:19px;flex-shrink:0}
-.toggle{position:relative;width:44px;height:26px;flex-shrink:0;cursor:pointer}
+/* ── RIGHT PANEL ─────────────────────────────────────── */
+.rpanel{background:var(--s1);border-left:1px solid var(--b1);display:flex;flex-direction:column;overflow:hidden}
+.rpanel-head{
+  padding:14px 16px 12px;border-bottom:1px solid var(--b1);
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
+}
+.rpanel-title{font-size:12.5px;font-weight:600;letter-spacing:-.2px}
+.rpanel-count{
+  font-size:10px;font-family:'JetBrains Mono',monospace;
+  background:var(--s3);border:1px solid var(--b2);
+  padding:2px 8px;border-radius:20px;color:var(--t3);
+}
+.dlist{flex:1;overflow-y:auto;padding:6px}
+.ditem{
+  display:flex;align-items:center;gap:10px;padding:8px 10px;
+  border-radius:7px;transition:background .15s;animation:in .2s ease both;
+}
+.ditem:hover{background:var(--s2)}
+.ddot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.ddot.face{background:var(--purple);box-shadow:0 0 5px var(--purple)}
+.ddot.unknown{background:var(--red);box-shadow:0 0 5px var(--red)}
+.ddot.vehicle{background:var(--blue);box-shadow:0 0 5px var(--blue)}
+.ddot.qr{background:var(--green);box-shadow:0 0 5px var(--green)}
+.ddot.object{background:var(--amber);box-shadow:0 0 5px var(--amber)}
+.dinfo{flex:1;min-width:0}
+.dtype{font-size:12.5px;font-weight:500;color:var(--t1)}
+.dtime{font-size:10.5px;color:var(--t4);font-family:'JetBrains Mono',monospace;margin-top:1px}
+.dconf{font-size:10.5px;font-family:'JetBrains Mono',monospace;color:var(--t3);flex-shrink:0}
+
+/* ── ALERTS ─────────────────────────────────────────── */
+.alert-item{
+  display:flex;align-items:center;gap:14px;background:var(--s1);
+  border:1px solid var(--b1);border-radius:var(--r);padding:14px 16px;
+  animation:in .2s ease both;transition:border-color .15s;
+}
+.alert-item:hover{border-color:var(--b2)}
+.alert-item.critical{border-color:rgba(239,67,67,.3);background:rgba(239,67,67,.03)}
+.alert-item.warning{border-color:rgba(245,158,11,.25);background:rgba(245,158,11,.02)}
+.aicon{
+  width:36px;height:36px;border-radius:10px;display:grid;place-items:center;flex-shrink:0;
+}
+.aicon svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.abody{flex:1;min-width:0}
+.atitle{font-size:13.5px;font-weight:500}
+.adesc{font-size:12px;color:var(--t2);margin-top:2px}
+.atime{font-size:10.5px;font-family:'JetBrains Mono',monospace;color:var(--t3);flex-shrink:0}
+.atag{font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:20px;font-family:'JetBrains Mono',monospace;flex-shrink:0;letter-spacing:.4px}
+.atag.critical{background:var(--red2);color:var(--red)}
+.atag.warning{background:var(--amber2);color:var(--amber)}
+.atag.info{background:var(--blue2);color:var(--blue)}
+
+/* ── LOGS ─────────────────────────────────────────── */
+.log-table-wrap{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);overflow:hidden}
+.log-table{width:100%;border-collapse:collapse}
+.log-table thead th{
+  background:var(--s2);padding:10px 16px;text-align:left;
+  font-size:10px;font-weight:600;color:var(--t3);
+  text-transform:uppercase;letter-spacing:.7px;border-bottom:1px solid var(--b1);
+}
+.log-table tbody tr{border-bottom:1px solid var(--b1);transition:background .15s}
+.log-table tbody tr:last-child{border-bottom:none}
+.log-table tbody tr:hover{background:var(--s2)}
+.log-table td{padding:10px 16px;font-size:12.5px}
+.tdtime{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t3)}
+.tdconf{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t3)}
+.tdcam{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t3)}
+.tddesc{color:var(--t2)}
+.pill{
+  display:inline-flex;align-items:center;gap:4px;font-size:10.5px;
+  font-weight:600;padding:2px 8px;border-radius:20px;
+  font-family:'JetBrains Mono',monospace;letter-spacing:.3px;
+}
+.pill::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
+.pill.face{background:var(--purple2);color:var(--purple)}
+.pill.unknown{background:var(--red2);color:var(--red)}
+.pill.vehicle{background:var(--blue2);color:var(--blue)}
+.pill.qr{background:var(--green2);color:var(--green)}
+.pill.object{background:var(--amber2);color:var(--amber)}
+
+/* ── FILTER BAR ─────────────────────────────────────── */
+.fbar{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.chip{
+  padding:5px 13px;border-radius:20px;font-size:11.5px;font-weight:500;
+  cursor:pointer;transition:all .15s;background:var(--s1);
+  border:1px solid var(--b2);color:var(--t3);
+}
+.chip.on{background:var(--blue2);border-color:rgba(45,126,247,.35);color:var(--blue)}
+.chip:hover:not(.on){color:var(--t2);background:var(--s2)}
+.fsearch{
+  flex:1;min-width:140px;background:var(--s1);border:1px solid var(--b1);
+  border-radius:var(--rs);padding:7px 12px;font-size:13px;color:var(--t1);
+  font-family:'Inter',sans-serif;outline:none;transition:all .2s;
+}
+.fsearch:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(45,126,247,.1)}
+.fsearch::placeholder{color:var(--t4)}
+
+/* ── SETTINGS ─────────────────────────────────────── */
+.section{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);overflow:hidden;margin-bottom:12px}
+.section-head{padding:12px 20px;border-bottom:1px solid var(--b1);font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.8px}
+.srow{display:flex;align-items:center;gap:14px;padding:15px 20px;border-bottom:1px solid var(--b1);transition:background .15s}
+.srow:last-child{border-bottom:none}
+.srow:hover{background:var(--s2)}
+.sicon{width:36px;height:36px;border-radius:9px;display:grid;place-items:center;flex-shrink:0}
+.sicon svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round}
+.srow-info{flex:1}
+.srow-title{font-size:13.5px;font-weight:500}
+.srow-desc{font-size:11.5px;color:var(--t3);margin-top:2px}
+.toggle{position:relative;width:42px;height:24px;flex-shrink:0;cursor:pointer}
 .toggle input{opacity:0;width:0;height:0;position:absolute}
-.track{position:absolute;inset:0;border-radius:13px;background:var(--sf3);border:1px solid var(--bd2);transition:all .25s}
-.track::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;background:#fff;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.4);transition:left .25s}
-input:checked+.track{background:var(--gr);border-color:var(--gr)}
-input:checked+.track::after{left:22px}
-.inp{background:var(--sf2);border:1px solid var(--bd2);border-radius:9px;padding:10px 13px;font-size:13px;color:var(--tx);font-family:'DM Sans',sans-serif;outline:none;width:100%;transition:border-color .2s}
-.inp:focus{border-color:var(--ac)}
+.ttrack{
+  position:absolute;inset:0;border-radius:12px;
+  background:var(--s3);border:1px solid var(--b2);transition:all .25s;
+}
+.ttrack::after{
+  content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;
+  background:#fff;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.4);transition:left .25s;
+}
+input:checked+.ttrack{background:var(--green);border-color:var(--green)}
+input:checked+.ttrack::after{left:21px}
+.sinp{
+  background:var(--s2);border:1px solid var(--b2);border-radius:var(--rs);
+  padding:9px 13px;font-size:13px;color:var(--t1);
+  font-family:'Inter',sans-serif;outline:none;width:100%;transition:all .2s;
+}
+.sinp:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(45,126,247,.1)}
 
-/* ===== FACE MODAL ===== */
-.moverlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(10px);z-index:1000;display:flex;align-items:center;justify-content:center;animation:fadeUp .2s ease}
-.mbox{background:var(--sf);border:1px solid var(--bd2);border-radius:var(--r);padding:30px;width:390px;display:flex;flex-direction:column;gap:16px;box-shadow:0 24px 60px rgba(0,0,0,.8)}
-.mtit{font-size:18px;font-weight:600;letter-spacing:-.3px}
-.msub{font-size:12.5px;color:var(--tx3);margin-top:2px}
-.dzone{border:2px dashed var(--bd2);border-radius:10px;padding:26px;text-align:center;cursor:pointer;transition:all .15s;color:var(--tx3);font-size:13px}
-.dzone:hover{border-color:var(--ac);background:rgba(10,132,255,.05);color:var(--tx2)}
+/* ── FACE REGISTRY ─────────────────────────────────── */
+.face-card{
+  display:flex;align-items:center;gap:13px;padding:13px 20px;
+  border-bottom:1px solid var(--b1);transition:background .15s;
+}
+.face-card:hover{background:var(--s2)}
+.face-avatar{
+  width:36px;height:36px;border-radius:50%;
+  background:var(--purple2);border:1px solid var(--purple);
+  display:grid;place-items:center;flex-shrink:0;
+}
+.face-avatar svg{width:16px;height:16px;stroke:var(--purple);fill:none;stroke-width:2;stroke-linecap:round}
+.face-name{font-size:13.5px;font-weight:500}
+.face-sub{font-size:11px;color:var(--t3);font-family:'JetBrains Mono',monospace;margin-top:2px;letter-spacing:.2px}
+
+/* ── MODAL ─────────────────────────────────────────── */
+.moverlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.78);backdrop-filter:blur(12px);
+  z-index:1000;display:flex;align-items:center;justify-content:center;animation:up .2s ease;
+}
+.mcard{
+  background:var(--s1);border:1px solid var(--b2);border-radius:16px;
+  padding:28px;width:380px;display:flex;flex-direction:column;gap:16px;
+  box-shadow:0 32px 80px rgba(0,0,0,.9);
+}
+.mcard-title{font-size:17px;font-weight:700;letter-spacing:-.4px}
+.mcard-sub{font-size:12.5px;color:var(--t3);margin-top:2px}
+.dropzone{
+  border:1.5px dashed var(--b2);border-radius:var(--rs);padding:24px;
+  text-align:center;cursor:pointer;transition:all .2s;color:var(--t3);font-size:13px;
+}
+.dropzone:hover{border-color:var(--blue);background:var(--blue3);color:var(--t2)}
+.dropzone svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;display:block;margin:0 auto 10px;opacity:.5}
 .mbtns{display:flex;gap:8px;justify-content:flex-end}
 
-/* ===== FILTERS ===== */
-.fbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.chip{padding:5px 13px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;background:var(--sf);border:1px solid var(--bd2);color:var(--tx2)}
-.chip.on{background:rgba(10,132,255,.15);border-color:var(--ac);color:var(--ac)}
-.chip:hover:not(.on){color:var(--tx);background:var(--sf3)}
-.srch{flex:1;min-width:140px;background:var(--sf);border:1px solid var(--bd);border-radius:9px;padding:8px 12px;font-size:13px;color:var(--tx);font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s}
-.srch:focus{border-color:var(--ac)}
-.srch::placeholder{color:var(--tx3)}
+/* ── EMPTY ─────────────────────────────────────────── */
+.empty{
+  padding:48px;text-align:center;color:var(--t3);
+  background:var(--s1);border-radius:var(--r);border:1px solid var(--b1);
+}
+.empty svg{width:32px;height:32px;stroke:currentColor;fill:none;stroke-width:1.3;stroke-linecap:round;display:block;margin:0 auto 12px;opacity:.2}
+.empty p{font-size:13px;font-weight:500;color:var(--t3)}
+.empty span{font-size:12px;color:var(--t4);display:block;margin-top:4px}
 
-/* ===== EMPTY ===== */
-.empty{padding:44px;text-align:center;color:var(--tx3);font-size:13px;background:var(--sf);border-radius:var(--r);border:1px solid var(--bd)}
-.eico{font-size:34px;opacity:.18;margin-bottom:10px}
+/* ── MOBILE NAV ─────────────────────────────────────── */
+.mobnav{
+  display:none;position:fixed;bottom:0;left:0;right:0;
+  background:rgba(10,11,14,.96);backdrop-filter:blur(24px);
+  border-top:1px solid var(--b1);z-index:500;
+  grid-template-columns:repeat(5,1fr);padding:6px 0 14px;
+}
+.mobitem{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:6px 4px;cursor:pointer;color:var(--t4);font-size:10px;
+  transition:color .15s;position:relative;
+}
+.mobitem.on,.mobitem:hover{color:var(--blue)}
+.mobitem svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round}
+.mobbadge{
+  position:absolute;top:2px;right:calc(50% - 18px);
+  background:var(--red);color:#fff;font-size:8px;
+  width:14px;height:14px;border-radius:50%;display:grid;place-items:center;
+}
 
-/* ===== MOBILE BOTTOM NAV ===== */
-.mobnav{display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(15,15,15,.96);backdrop-filter:blur(24px);border-top:1px solid var(--bd);z-index:500;grid-template-columns:repeat(5,1fr);padding:6px 0 16px}
-.mni{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;cursor:pointer;color:var(--tx3);font-size:10px;transition:color .15s;position:relative}
-.mni.on,.mni:hover{color:var(--ac)}
-.mni svg{width:21px;height:21px}
-.mbdg{position:absolute;top:2px;right:calc(50% - 18px);background:var(--rd);color:#fff;font-size:8px;width:14px;height:14px;border-radius:50%;display:grid;place-items:center;font-family:'DM Mono',monospace}
-
-/* ===== RESPONSIVE ===== */
-@media(max-width:900px){
-  .app{grid-template-columns:1fr;grid-template-rows:56px 1fr}
-  aside,.rp{display:none}
+/* ── RESPONSIVE ─────────────────────────────────────── */
+@media(max-width:960px){
+  .app{grid-template-columns:1fr;grid-template-rows:var(--nav) 1fr}
+  aside,.rpanel{display:none}
   .mobnav{display:grid}
-  main{padding:16px 16px 82px}
-  .stats{grid-template-columns:repeat(2,1fr)}
-  .cgrid{grid-template-columns:1fr}
+  main{padding:16px 16px 80px}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .chart-grid{grid-template-columns:1fr}
   .ph{flex-direction:column;gap:10px}
   nav{padding:0 16px}
-  .nsub{display:none}
-  .row{width:100%}
+  .nsub,.ndivider{display:none}
 }
 @media(max-width:500px){
-  .sv{font-size:24px}
-  .lbox{width:calc(100vw - 28px);padding:32px 22px}
-  .mbox{width:calc(100vw - 28px)}
-  .ltbl thead th:nth-child(4),.ltbl td:nth-child(4),
-  .ltbl thead th:nth-child(5),.ltbl td:nth-child(5){display:none}
+  .scard-val{font-size:26px}
+  .lcard{width:calc(100vw - 28px);padding:30px 22px}
+  .mcard{width:calc(100vw - 24px);padding:22px}
+  .log-table thead th:nth-child(4),.log-table td:nth-child(4),
+  .log-table thead th:nth-child(5),.log-table td:nth-child(5){display:none}
 }
 </style>
 </head>
 <body>
 
-<!-- ====== LOGIN ====== -->
-<div id="login">
-  <div class="lbox">
-    <div class="llogo">⬡</div>
-    <div style="text-align:center">
-      <div class="ltitle">Sentinel</div>
-      <div class="lsub">Smart Surveillance System</div>
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="lcard">
+    <div class="lmark">
+      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
     </div>
-    <div style="display:flex;flex-direction:column;gap:10px">
-      <input class="linput" id="lu" placeholder="Username" value="admin" onkeydown="if(event.key==='Enter')login()"/>
-      <input class="linput" id="lp" type="password" placeholder="Password" onkeydown="if(event.key==='Enter')login()"/>
+    <div class="lhead">
+      <h1>Sentinel</h1>
+      <p>Smart Surveillance System</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="lfield">
+        <div class="lfieldlabel">Username</div>
+        <input class="linp" id="lu" placeholder="Enter username" value="Asmi Nanda" onkeydown="if(event.key==='Enter')login()"/>
+      </div>
+      <div class="lfield">
+        <div class="lfieldlabel">Password</div>
+        <input class="linp" id="lp" type="password" placeholder="Enter password" onkeydown="if(event.key==='Enter')login()"/>
+      </div>
     </div>
     <div class="lerr" id="lerr">Incorrect username or password</div>
-    <button class="lbtn" onclick="login()">Sign In →</button>
-    <div class="lhint"> Asmi Nanda  / Amity University &nbsp;·&nbsp; College Project </div>
+    <button class="lbtn" onclick="login()">Sign In</button>
+    <div class="lhint">Asmi Nanda &nbsp;·&nbsp; Amity University</div>
   </div>
 </div>
 
-<!-- ====== SPLASH ====== -->
+<!-- SPLASH -->
 <div id="splash">
-  <div class="slogo">⬡</div>
-  <div style="text-align:center">
-    <div style="font-size:28px;font-weight:700;letter-spacing:-1px">Sentinel</div>
-    <div style="font-size:13px;color:var(--tx3);font-family:'DM Mono',monospace">Smart Surveillance System</div>
+  <div class="smark">
+    <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
   </div>
   <div style="text-align:center">
+    <div class="sname">Sentinel</div>
+    <div class="ssub">SMART SURVEILLANCE SYSTEM</div>
+  </div>
+  <div style="text-align:center;display:flex;flex-direction:column;gap:10px;align-items:center">
     <div class="sbar"><div class="sfill"></div></div>
-    <div class="smsg" id="smsg" style="margin-top:10px">Initializing...</div>
+    <div class="smsg" id="smsg">Initializing...</div>
   </div>
 </div>
 
-<!-- ====== APP ====== -->
+<!-- APP -->
 <div class="app" id="app" style="opacity:0;transition:opacity .5s">
 
   <!-- NAVBAR -->
   <nav>
     <div class="nbrand">
-      <div class="nlogo">⬡</div>
-      <div><div class="ntitle">Sentinel</div><div class="nsub">Smart Surveillance</div></div>
+      <div class="nmark"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+      <div class="ntitle">Sentinel</div>
+      <div class="ndivider"></div>
+      <div class="nsub">Smart Surveillance</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px">
-      <div class="spill">
-        <div class="sdot" id="sdot"></div>
-        <span class="slbl" id="slbl">LIVE · CAM-01</span>
+      <div class="npill">
+        <div class="ndot" id="ndot"></div>
+        <span class="nlbl" id="nlbl">LIVE · CAM-01</span>
       </div>
-      <span class="bbdg demo" id="bbdg">DEMO MODE</span>
+      <span class="nstatus demo" id="nstatus">DEMO</span>
     </div>
     <div class="nav-r">
       <span class="ntime" id="ntime"></span>
       <div class="avt" onclick="toggleMenu()" id="avt">
         <span id="avti">A</span>
         <div class="umenu" id="umenu">
-          <div class="umi" id="uname" style="color:var(--tx);font-weight:500;cursor:default;font-size:13.5px"></div>
-          <div class="udiv"></div>
-          <div class="umi" onclick="go('analytics')">📊 Analytics</div>
-          <div class="umi" onclick="go('settings')">⚙️ Settings</div>
-          <div class="udiv"></div>
-          <div class="umi red" onclick="logout()">🚪 Sign Out</div>
+          <div class="umhead" id="uname">ADMIN</div>
+          <div class="udi"></div>
+          <div class="umi" onclick="go('analytics')">
+            <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Analytics
+          </div>
+          <div class="umi" onclick="go('settings')">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings
+          </div>
+          <div class="udi"></div>
+          <div class="umi danger" onclick="logout()">
+            <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>Sign Out
+          </div>
         </div>
       </div>
     </div>
@@ -319,48 +581,61 @@ input:checked+.track::after{left:22px}
 
   <!-- SIDEBAR -->
   <aside>
-    <div class="sec">Navigation</div>
-    <div class="ni on" id="si-dashboard" onclick="go('dashboard')">
-      <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="2" width="7" height="7" rx="1.5"/><rect x="11" y="2" width="7" height="7" rx="1.5"/><rect x="2" y="11" width="7" height="7" rx="1.5"/><rect x="11" y="11" width="7" height="7" rx="1.5"/></svg>
+    <div class="nsec">Main</div>
+    <div class="nitem on" id="si-dashboard" onclick="go('dashboard')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
       Dashboard
     </div>
-    <div class="ni" id="si-analytics" onclick="go('analytics')">
-      <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="2,14 7,8 11,11 18,4"/><line x1="2" y1="18" x2="18" y2="18"/></svg>
+    <div class="nitem" id="si-analytics" onclick="go('analytics')">
+      <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
       Analytics
     </div>
-    <div class="ni" id="si-alerts" onclick="go('alerts')">
-      <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2a6 6 0 016 6v3l1.5 3H3L4.5 11V8a6 6 0 016-6z"/><path d="M8 15a2 2 0 004 0"/></svg>
-      Alerts <span class="nbdg" id="abadge" style="display:none">0</span>
+    <div class="nitem" id="si-alerts" onclick="go('alerts')">
+      <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+      Alerts <span class="nbadge" id="abadge" style="display:none">0</span>
     </div>
-    <div class="ni" id="si-logs" onclick="go('logs')">
-      <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h12M4 8h12M4 12h8M4 16h6"/></svg>
+    <div class="nitem" id="si-logs" onclick="go('logs')">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
       Logs
     </div>
-    <div class="ni" id="si-faces" onclick="go('faces')">
-      <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="7" r="4"/><path d="M3 18c0-3.3 3.1-6 7-6s7 2.7 7 6"/></svg>
+    <div class="nitem" id="si-faces" onclick="go('faces')">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
       Face Registry
     </div>
-    <div class="ni" id="si-settings" onclick="go('settings')">
-      <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="2.5"/><path d="M10 2v1.5M10 16.5V18M18 10h-1.5M3.5 10H2M15.36 4.64l-1.06 1.06M5.7 14.3l-1.06 1.06M15.36 15.36l-1.06-1.06M5.7 5.7L4.64 4.64"/></svg>
+    <div class="nitem" id="si-settings" onclick="go('settings')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
       Settings
     </div>
+
     <div style="margin-top:auto">
-      <div class="sec">Cameras</div>
-      <div class="cami"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="5" width="14" height="11" rx="2"/><path d="M15 8l4-2v8l-4-2V8z"/></svg>CAM-01<span style="margin-left:auto;font-size:10px;color:var(--gr)">●</span></div>
-      <div class="cami" style="opacity:.35"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="5" width="14" height="11" rx="2"/><path d="M15 8l4-2v8l-4-2V8z"/></svg>CAM-02<span style="margin-left:auto;font-size:10px;color:var(--rd)">●</span></div>
+      <div class="nsec">Cameras</div>
+      <div class="camitem">
+        <svg style="width:13px;height:13px;stroke:var(--t3);fill:none;stroke-width:1.8;stroke-linecap:round" viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+        CAM-01
+        <div class="camdot" style="background:var(--green);box-shadow:0 0 6px var(--green)"></div>
+      </div>
+      <div class="camitem" style="opacity:.35">
+        <svg style="width:13px;height:13px;stroke:var(--t3);fill:none;stroke-width:1.8;stroke-linecap:round" viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+        CAM-02
+        <div class="camdot" style="background:var(--red)"></div>
+      </div>
     </div>
   </aside>
 
   <!-- MAIN -->
   <main id="mainArea">
 
-    <!-- ── DASHBOARD ── -->
+    <!-- DASHBOARD -->
     <div class="page on" id="page-dashboard">
       <div class="ph">
-        <div><div class="pt">Live Feed</div><div class="ps">Real-time AI detection — Camera 01</div></div>
-        <div class="row">
-          <button class="btn bs" id="pauseBtn" onclick="toggleLive(this)">⏸ Pause</button>
-          <button class="btn bp" id="conBtn" onclick="connectBackend()">🔌 Connect Backend</button>
+        <div class="ph-left"><h1>Live Feed</h1><p>Real-time AI detection — Camera 01</p></div>
+        <div class="ph-right">
+          <button class="btn btn-s" id="pauseBtn" onclick="toggleLive(this)">
+            <svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>Pause
+          </button>
+          <button class="btn btn-p" id="conBtn" onclick="connectBackend()">
+            <svg viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0114.08 0M1.42 9a16 16 0 0121.16 0M8.53 16.11a6 6 0 016.95 0M12 20h.01"/></svg>Connect Backend
+          </button>
         </div>
       </div>
 
@@ -368,696 +643,579 @@ input:checked+.track::after{left:22px}
       <div class="vwrap">
         <img id="realFeed" class="vreal" style="display:none" alt="stream"/>
         <div class="vbg" id="simFeed">
-          <div class="nofeed">
-            <svg width="50" height="50" viewBox="0 0 52 52" fill="none" stroke="white" stroke-width="1.2" style="opacity:.1;display:block;margin:0 auto 10px"><rect x="2" y="10" width="36" height="28" rx="4"/><path d="M38 20l12-6v24l-12-6V20z"/><circle cx="20" cy="24" r="7"/></svg>
-            <p>CCTV Stream Placeholder</p>
-            <small id="feedhint">Click "Connect Backend" for live webcam feed</small>
+          <div class="vsweep"></div>
+          <div class="vnofeed">
+            <svg width="52" height="52" viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+            <p>No Camera Feed</p>
+            <small id="feedhint">Click "Connect Backend" for live webcam</small>
           </div>
-          <div id="bboxL"></div>
+          <div id="bboxLayer"></div>
         </div>
-        <div class="cor ctl"></div><div class="cor ctr"></div><div class="cor cbl"></div><div class="cor cbr"></div>
+        <div class="vcor vcor-tl"></div><div class="vcor vcor-tr"></div>
+        <div class="vcor vcor-bl"></div><div class="vcor vcor-br"></div>
         <div class="vhud">
-          <div class="ctag">📍 Entrance — CAM-01 · 1080p</div>
-          <div class="livebdg" id="livebdg"><div class="ldot"></div>LIVE</div>
+          <div class="vcamtag">CAM-01 · Entrance · 1080p</div>
+          <div class="vlive" id="vlive"><div class="vlivedot"></div>LIVE</div>
         </div>
       </div>
 
       <!-- Stats -->
-      <div class="stats">
-        <div class="sc"><div class="sl">Faces</div><div class="sv" style="color:var(--pu)" id="stF">0</div><div class="ss">detected today</div></div>
-        <div class="sc"><div class="sl">Vehicles</div><div class="sv" style="color:var(--ac)" id="stV">0</div><div class="ss">detected today</div></div>
-        <div class="sc"><div class="sl">QR Codes</div><div class="sv" style="color:var(--gr)" id="stQ">0</div><div class="ss">scanned today</div></div>
-        <div class="sc"><div class="sl">Objects</div><div class="sv" style="color:var(--am)" id="stO">0</div><div class="ss">detected today</div></div>
+      <div class="stats-row">
+        <div class="scard">
+          <div class="scard-label">Faces Detected</div>
+          <div class="scard-val" style="color:var(--purple)" id="stF">0</div>
+          <div class="scard-sub">today</div>
+          <div class="scard-bar" style="background:var(--purple)"></div>
+        </div>
+        <div class="scard">
+          <div class="scard-label">Vehicles</div>
+          <div class="scard-val" style="color:var(--blue)" id="stV">0</div>
+          <div class="scard-sub">today</div>
+          <div class="scard-bar" style="background:var(--blue)"></div>
+        </div>
+        <div class="scard">
+          <div class="scard-label">QR Codes</div>
+          <div class="scard-val" style="color:var(--green)" id="stQ">0</div>
+          <div class="scard-sub">today</div>
+          <div class="scard-bar" style="background:var(--green)"></div>
+        </div>
+        <div class="scard">
+          <div class="scard-label">Objects</div>
+          <div class="scard-val" style="color:var(--amber)" id="stO">0</div>
+          <div class="scard-sub">today</div>
+          <div class="scard-bar" style="background:var(--amber)"></div>
+        </div>
       </div>
     </div>
 
-    <!-- ── ANALYTICS ── -->
+    <!-- ANALYTICS -->
     <div class="page" id="page-analytics">
-      <div class="ph"><div><div class="pt">Analytics</div><div class="ps">Detection trends and live statistics</div></div></div>
-      <div class="cgrid">
-        <div class="ccard">
-          <div class="ct">Detections Over Time</div>
-          <div class="cs">Live — updates with every detection</div>
-          <div class="cw"><canvas id="lineC"></canvas></div>
-        </div>
-        <div class="ccard">
-          <div class="ct">Type Breakdown</div>
-          <div class="cs">Distribution by detection type today</div>
-          <div class="cw"><canvas id="donutC"></canvas></div>
-        </div>
-        <div class="ccard">
-          <div class="ct">Activity per Minute</div>
-          <div class="cs">Detection count — last 10 minutes</div>
-          <div class="cw"><canvas id="barC"></canvas></div>
-        </div>
-        <div class="ccard">
-          <div class="ct">AI Confidence</div>
-          <div class="cs">Average confidence score by type</div>
-          <div class="cw"><canvas id="radarC"></canvas></div>
-        </div>
+      <div class="ph"><div class="ph-left"><h1>Analytics</h1><p>Detection trends and live statistics</p></div></div>
+      <div class="chart-grid">
+        <div class="ccard"><div class="ccard-title">Detections Over Time</div><div class="ccard-sub">Updates with every detection</div><div class="ccard-body"><canvas id="lineC"></canvas></div></div>
+        <div class="ccard"><div class="ccard-title">Type Distribution</div><div class="ccard-sub">Breakdown by detection category</div><div class="ccard-body"><canvas id="donutC"></canvas></div></div>
+        <div class="ccard"><div class="ccard-title">Activity per Minute</div><div class="ccard-sub">Last 10 minutes</div><div class="ccard-body"><canvas id="barC"></canvas></div></div>
+        <div class="ccard"><div class="ccard-title">AI Confidence</div><div class="ccard-sub">Average confidence score by type</div><div class="ccard-body"><canvas id="radarC"></canvas></div></div>
       </div>
     </div>
 
-    <!-- ── ALERTS ── -->
+    <!-- ALERTS -->
     <div class="page" id="page-alerts">
       <div class="ph">
-        <div><div class="pt">Alerts</div><div class="ps">Critical detections and notifications</div></div>
-        <div class="row"><button class="btn bs" onclick="clearAlerts()">Clear All</button></div>
+        <div class="ph-left"><h1>Alerts</h1><p>Critical detections and system notifications</p></div>
+        <div class="ph-right"><button class="btn btn-s" onclick="clearAlerts()">Clear All</button></div>
       </div>
       <div class="fbar" id="afbar">
         <span class="chip on" onclick="fAlert('all',this)">All</span>
-        <span class="chip" onclick="fAlert('critical',this)">🔴 Critical</span>
-        <span class="chip" onclick="fAlert('warning',this)">🟡 Warning</span>
-        <span class="chip" onclick="fAlert('info',this)">🔵 Info</span>
+        <span class="chip" onclick="fAlert('critical',this)">Critical</span>
+        <span class="chip" onclick="fAlert('warning',this)">Warning</span>
+        <span class="chip" onclick="fAlert('info',this)">Info</span>
       </div>
       <div id="alertList" style="display:flex;flex-direction:column;gap:8px"></div>
     </div>
 
-    <!-- ── LOGS ── -->
+    <!-- LOGS -->
     <div class="page" id="page-logs">
       <div class="ph">
-        <div><div class="pt">Detection Logs</div><div class="ps">Full detection history — auto-saved to database</div></div>
-        <div class="row"><button class="btn bs" onclick="exportCSV()">⬇ Export CSV</button></div>
+        <div class="ph-left"><h1>Detection Logs</h1><p>Complete history — auto-saved to database</p></div>
+        <div class="ph-right"><button class="btn btn-s" onclick="exportCSV()">Export CSV</button></div>
       </div>
       <div class="fbar">
-        <input class="srch" id="lsrch" placeholder="Search logs..." oninput="renderLogs()"/>
+        <input class="fsearch" id="lsrch" placeholder="Search logs..." oninput="renderLogs()"/>
         <span class="chip on" onclick="fLog('all',this)">All</span>
         <span class="chip" onclick="fLog('face',this)">Face</span>
         <span class="chip" onclick="fLog('vehicle',this)">Vehicle</span>
         <span class="chip" onclick="fLog('qr',this)">QR</span>
         <span class="chip" onclick="fLog('object',this)">Object</span>
       </div>
-      <div style="background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden">
-        <table class="ltbl">
+      <div class="log-table-wrap">
+        <table class="log-table">
           <thead><tr><th>Time</th><th>Type</th><th>Description</th><th>Conf.</th><th>Camera</th></tr></thead>
           <tbody id="logBody"></tbody>
         </table>
       </div>
     </div>
 
-    <!-- ── FACES ── -->
+    <!-- FACES -->
     <div class="page" id="page-faces">
       <div class="ph">
-        <div><div class="pt">Face Registry</div><div class="ps">Manage known individuals for AI recognition</div></div>
-        <div class="row"><button class="btn bp" onclick="showModal()">+ Register Face</button></div>
+        <div class="ph-left"><h1>Face Registry</h1><p>Manage known individuals for AI recognition</p></div>
+        <div class="ph-right"><button class="btn btn-p" onclick="showModal()">Add Person</button></div>
       </div>
-      <div class="sect">
-        <div class="stit">Known Individuals</div>
-        <div id="faceList"></div>
-      </div>
-      <div class="sect">
-        <div class="stit">How It Works</div>
-        <div style="padding:20px;display:flex;flex-direction:column;gap:14px">
-          <div style="display:flex;gap:14px"><div style="width:34px;height:34px;border-radius:9px;background:rgba(10,132,255,.15);display:grid;place-items:center;flex-shrink:0">1️⃣</div><div><div style="font-size:13.5px;font-weight:500">Register a face</div><div style="font-size:12px;color:var(--tx3);margin-top:2px">Upload a clear photo and enter their name</div></div></div>
-          <div style="display:flex;gap:14px"><div style="width:34px;height:34px;border-radius:9px;background:rgba(48,209,88,.15);display:grid;place-items:center;flex-shrink:0">2️⃣</div><div><div style="font-size:13.5px;font-weight:500">AI learns the face</div><div style="font-size:12px;color:var(--tx3);margin-top:2px">Trained using LBPH face recognition algorithm</div></div></div>
-          <div style="display:flex;gap:14px"><div style="width:34px;height:34px;border-radius:9px;background:rgba(191,90,242,.15);display:grid;place-items:center;flex-shrink:0">3️⃣</div><div><div style="font-size:13.5px;font-weight:500">Identified on camera</div><div style="font-size:12px;color:var(--tx3);margin-top:2px">Known = purple label. Unknown person = red alert.</div></div></div>
+      <div class="section"><div class="section-head">Registered Individuals</div><div id="faceList"></div></div>
+      <div class="section">
+        <div class="section-head">How Face Recognition Works</div>
+        <div style="padding:20px;display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;gap:14px;align-items:flex-start">
+            <div style="width:28px;height:28px;border-radius:7px;background:var(--blue2);border:1px solid rgba(45,126,247,.3);display:grid;place-items:center;flex-shrink:0;font-size:12px;font-weight:700;color:var(--blue);font-family:'JetBrains Mono',monospace">01</div>
+            <div><div style="font-size:13.5px;font-weight:500;margin-bottom:3px">Register a person</div><div style="font-size:12px;color:var(--t3)">Upload a clear frontal photo and enter their full name</div></div>
+          </div>
+          <div style="display:flex;gap:14px;align-items:flex-start">
+            <div style="width:28px;height:28px;border-radius:7px;background:var(--green2);border:1px solid rgba(35,197,94,.3);display:grid;place-items:center;flex-shrink:0;font-size:12px;font-weight:700;color:var(--green);font-family:'JetBrains Mono',monospace">02</div>
+            <div><div style="font-size:13.5px;font-weight:500;margin-bottom:3px">AI trains on the photo</div><div style="font-size:12px;color:var(--t3)">LBPH algorithm learns their facial features</div></div>
+          </div>
+          <div style="display:flex;gap:14px;align-items:flex-start">
+            <div style="width:28px;height:28px;border-radius:7px;background:var(--purple2);border:1px solid rgba(168,85,247,.3);display:grid;place-items:center;flex-shrink:0;font-size:12px;font-weight:700;color:var(--purple);font-family:'JetBrains Mono',monospace">03</div>
+            <div><div style="font-size:13.5px;font-weight:500;margin-bottom:3px">Identified on camera</div><div style="font-size:12px;color:var(--t3)">Known persons show name in purple. Unknown persons trigger red alert.</div></div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- ── SETTINGS ── -->
+    <!-- SETTINGS -->
     <div class="page" id="page-settings">
-      <div class="ph"><div><div class="pt">Settings</div><div class="ps">Configure detection and system preferences</div></div></div>
+      <div class="ph"><div class="ph-left"><h1>Settings</h1><p>Configure detection and system preferences</p></div></div>
 
-      <div class="sect">
-        <div class="stit">Detection Modules</div>
-        <div class="sr"><div class="sico" style="background:rgba(191,90,242,.15)">🧑</div><div style="flex:1"><div style="font-size:14px;font-weight:500">Face Detection</div><div style="font-size:12px;color:var(--tx3);margin-top:2px">Detect and track human faces using OpenCV</div></div><label class="toggle"><input type="checkbox" checked onchange="updCfg('face',this.checked)"><div class="track"></div></label></div>
-        <div class="sr"><div class="sico" style="background:rgba(10,132,255,.15)">🚗</div><div style="flex:1"><div style="font-size:14px;font-weight:500">Vehicle Detection</div><div style="font-size:12px;color:var(--tx3);margin-top:2px">Identify cars, trucks, motorcycles via YOLOv8</div></div><label class="toggle"><input type="checkbox" checked onchange="updCfg('vehicle',this.checked)"><div class="track"></div></label></div>
-        <div class="sr"><div class="sico" style="background:rgba(48,209,88,.15)">⬛</div><div style="flex:1"><div style="font-size:14px;font-weight:500">QR Code Scanner</div><div style="font-size:12px;color:var(--tx3);margin-top:2px">Scan and decode QR codes in real-time</div></div><label class="toggle"><input type="checkbox" checked onchange="updCfg('qr',this.checked)"><div class="track"></div></label></div>
-        <div class="sr"><div class="sico" style="background:rgba(255,159,10,.15)">📦</div><div style="flex:1"><div style="font-size:14px;font-weight:500">Object Detection</div><div style="font-size:12px;color:var(--tx3);margin-top:2px">General object recognition and classification</div></div><label class="toggle"><input type="checkbox" checked onchange="updCfg('object',this.checked)"><div class="track"></div></label></div>
+      <div class="section">
+        <div class="section-head">Detection Modules</div>
+        <div class="srow">
+          <div class="sicon" style="background:var(--purple2);color:var(--purple)"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+          <div class="srow-info"><div class="srow-title">Face Detection</div><div class="srow-desc">Detect and track human faces using OpenCV</div></div>
+          <label class="toggle"><input type="checkbox" checked onchange="updCfg('face',this.checked)"><div class="ttrack"></div></label>
+        </div>
+        <div class="srow">
+          <div class="sicon" style="background:var(--blue2);color:var(--blue)"><svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8l5-5M16 13l5 5M16 8h3M16 13h3"/></svg></div>
+          <div class="srow-info"><div class="srow-title">Vehicle Detection</div><div class="srow-desc">Identify cars, trucks, motorcycles via YOLOv8</div></div>
+          <label class="toggle"><input type="checkbox" checked onchange="updCfg('vehicle',this.checked)"><div class="ttrack"></div></label>
+        </div>
+        <div class="srow">
+          <div class="sicon" style="background:var(--green2);color:var(--green)"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6v6H9z"/><path d="M9 3v3M15 3v3M21 9h-3M21 15h-3M15 21v-3M9 21v-3M3 15h3M3 9h3"/></svg></div>
+          <div class="srow-info"><div class="srow-title">QR Code Scanner</div><div class="srow-desc">Scan and decode QR codes in real-time</div></div>
+          <label class="toggle"><input type="checkbox" checked onchange="updCfg('qr',this.checked)"><div class="ttrack"></div></label>
+        </div>
+        <div class="srow">
+          <div class="sicon" style="background:var(--amber2);color:var(--amber)"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></div>
+          <div class="srow-info"><div class="srow-title">Object Detection</div><div class="srow-desc">General object recognition and classification</div></div>
+          <label class="toggle"><input type="checkbox" checked onchange="updCfg('object',this.checked)"><div class="ttrack"></div></label>
+        </div>
       </div>
 
-      <div class="sect">
-        <div class="stit">Backend Connection</div>
+      <div class="section">
+        <div class="section-head">Backend Connection</div>
         <div style="padding:16px 20px;display:flex;gap:8px">
-          <input class="inp" id="apiInp" value="http://localhost:8000" placeholder="https://sentinel-backend-xxxx.onrender.com"/>
-          <button class="btn bp" onclick="saveUrl()">Connect</button>
+          <input class="sinp" id="apiInp" value="https://sentinel-backend-1-9fpz.onrender.com" placeholder="https://your-backend.onrender.com"/>
+          <button class="btn btn-p" onclick="saveUrl()">Connect</button>
         </div>
-        <div class="sr" style="padding-top:10px;padding-bottom:10px">
-          <div style="flex:1"><div style="font-size:12.5px;color:var(--tx3)">Database logs auto-save to SQLite on backend. Export CSV anytime from Logs page.</div></div>
-        </div>
-      </div>
-
-      <div class="sect">
-        <div class="stit">Account</div>
-        <div class="sr">
-          <div style="flex:1"><div style="font-size:14px;font-weight:500" id="settUser">admin</div><div style="font-size:12px;color:var(--tx3)">Administrator</div></div>
-          <button class="btn br" onclick="logout()">Sign Out</button>
+        <div class="srow" style="padding-top:10px;padding-bottom:10px;cursor:default">
+          <div class="srow-info"><div class="srow-desc">All detections auto-save to SQLite database on the backend server.</div></div>
         </div>
       </div>
 
-      <div class="sect">
-        <div class="stit">About</div>
-        <div class="sr"><div><div style="font-size:13px;color:var(--tx3);font-weight:500">Sentinel v2.0.0 — Smart Surveillance System</div><div style="font-size:11.5px;color:var(--tx3);opacity:.6;margin-top:3px">YOLOv8 + OpenCV + FastAPI + SQLite · College Project</div></div></div>
+      <div class="section">
+        <div class="section-head">Account</div>
+        <div class="srow">
+          <div class="srow-info">
+            <div class="srow-title" id="settUser">Asmi Nanda</div>
+            <div class="srow-desc">Administrator · Amity University</div>
+          </div>
+          <button class="btn btn-d" onclick="logout()">Sign Out</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head">About</div>
+        <div class="srow" style="cursor:default">
+          <div class="srow-info">
+            <div class="srow-title" style="font-size:13px">Sentinel v2.0 — Smart Surveillance System</div>
+            <div class="srow-desc">OpenCV + YOLOv8 · FastAPI · SQLite · Amity University Final Year Project</div>
+          </div>
+        </div>
       </div>
     </div>
 
   </main>
 
   <!-- RIGHT PANEL -->
-  <div class="rp">
-    <div class="rph">
-      <span class="rpt">Live Detections</span>
-      <span class="rpb" id="detCnt">0 total</span>
+  <div class="rpanel">
+    <div class="rpanel-head">
+      <span class="rpanel-title">Live Detections</span>
+      <span class="rpanel-count" id="detCnt">0 total</span>
     </div>
-    <div class="dl" id="detList">
-      <div style="padding:32px 16px;text-align:center;color:var(--tx3);font-size:12px">
-        <div style="font-size:28px;opacity:.2;margin-bottom:8px">🔍</div>
-        Waiting for detections...
+    <div class="dlist" id="detList">
+      <div style="padding:36px 16px;text-align:center;color:var(--t3)">
+        <svg style="width:28px;height:28px;stroke:currentColor;fill:none;stroke-width:1.3;stroke-linecap:round;display:block;margin:0 auto 10px;opacity:.2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <div style="font-size:12.5px">Waiting for detections</div>
+        <div style="font-size:11px;color:var(--t4);margin-top:4px;font-family:'JetBrains Mono',monospace">Connect backend to start</div>
       </div>
     </div>
   </div>
 
 </div>
 
-<!-- MOBILE BOTTOM NAV -->
+<!-- MOBILE NAV -->
 <div class="mobnav" id="mobnav">
-  <div class="mni on" id="mn-dashboard" onclick="go('dashboard')"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="2" width="7" height="7" rx="1.5"/><rect x="11" y="2" width="7" height="7" rx="1.5"/><rect x="2" y="11" width="7" height="7" rx="1.5"/><rect x="11" y="11" width="7" height="7" rx="1.5"/></svg>Home</div>
-  <div class="mni" id="mn-analytics" onclick="go('analytics')"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="2,14 7,8 11,11 18,4"/><line x1="2" y1="18" x2="18" y2="18"/></svg>Charts</div>
-  <div class="mni" id="mn-alerts" onclick="go('alerts')"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2a6 6 0 016 6v3l1.5 3H3L4.5 11V8a6 6 0 016-6z"/><path d="M8 15a2 2 0 004 0"/></svg>Alerts<span class="mbdg" id="mbdg" style="display:none">0</span></div>
-  <div class="mni" id="mn-logs" onclick="go('logs')"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h12M4 8h12M4 12h8M4 16h6"/></svg>Logs</div>
-  <div class="mni" id="mn-settings" onclick="go('settings')"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="2.5"/><path d="M10 2v1.5M10 16.5V18M18 10h-1.5M3.5 10H2"/></svg>More</div>
+  <div class="mobitem on" id="mn-dashboard" onclick="go('dashboard')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Home</div>
+  <div class="mobitem" id="mn-analytics" onclick="go('analytics')"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Charts</div>
+  <div class="mobitem" id="mn-alerts" onclick="go('alerts')"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>Alerts<span class="mobbadge" id="mbdg" style="display:none">0</span></div>
+  <div class="mobitem" id="mn-logs" onclick="go('logs')"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Logs</div>
+  <div class="mobitem" id="mn-settings" onclick="go('settings')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>More</div>
 </div>
 
 <!-- FACE MODAL -->
 <div class="moverlay" id="modal" style="display:none" onclick="if(event.target===this)hideModal()">
-  <div class="mbox">
-    <div><div class="mtit">Register Face</div><div class="msub">Add a known person to the recognition system</div></div>
-    <input class="inp" id="fname" placeholder="Full name (e.g. John Smith)"/>
-    <div class="dzone" onclick="document.getElementById('finp').click()" id="dzone">
-      <div id="dlbl">📸 Click to upload a photo</div>
-      <div style="font-size:11px;margin-top:5px;opacity:.5">JPG or PNG · Clear frontal face recommended</div>
+  <div class="mcard">
+    <div>
+      <div class="mcard-title">Register Person</div>
+      <div class="mcard-sub">Add a known individual to the recognition system</div>
+    </div>
+    <input class="sinp" id="fname" placeholder="Full name (e.g. John Smith)"/>
+    <div class="dropzone" onclick="document.getElementById('finp').click()" id="dzone">
+      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+      <div id="dlbl">Click to upload a photo</div>
+      <div style="font-size:11px;margin-top:5px;color:var(--t4);font-family:'JetBrains Mono',monospace">JPG or PNG · Clear frontal face</div>
     </div>
     <input type="file" id="finp" accept="image/*" style="display:none" onchange="filePick(this)"/>
     <div class="mbtns">
-      <button class="btn bs" onclick="hideModal()">Cancel</button>
-      <button class="btn bp" onclick="regFace()">Register</button>
+      <button class="btn btn-s" onclick="hideModal()">Cancel</button>
+      <button class="btn btn-p" onclick="regFace()">Register</button>
     </div>
   </div>
 </div>
 
 <script>
-// ═══════════════════════════════════════════════════
-//  FEATURE 3: LOGIN SYSTEM
-// ═══════════════════════════════════════════════════
-const CREDS = { Asmi Nanda :'Asmi0512', demo:'demo123' };
+// ── CREDENTIALS ────────────────────────────────────────────
+const CREDS = { 'Asmi Nanda':'Asmi0512', 'demo':'demo123' };
 let curUser = null;
 
-function login() {
-  const u = document.getElementById('lu').value.trim();
-  const p = document.getElementById('lp').value;
-  if (CREDS[u] && CREDS[u] === p) {
-    curUser = u;
-    document.getElementById('login').style.display = 'none';
-    document.getElementById('avti').textContent = u[0].toUpperCase();
-    document.getElementById('uname').textContent = '👤 ' + u;
-    document.getElementById('settUser').textContent = u;
+function login(){
+  const u=document.getElementById('lu').value.trim();
+  const p=document.getElementById('lp').value;
+  if(CREDS[u]&&CREDS[u]===p){
+    curUser=u;
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('avti').textContent=u[0].toUpperCase();
+    document.getElementById('uname').textContent=u.toUpperCase();
+    document.getElementById('settUser').textContent=u;
     showSplash();
   } else {
-    const e = document.getElementById('lerr');
-    e.style.display = 'block';
-    setTimeout(() => e.style.display = 'none', 3000);
+    const e=document.getElementById('lerr');
+    e.style.display='block';
+    setTimeout(()=>e.style.display='none',3000);
   }
 }
 
-function logout() {
-  curUser = null;
-  clearInterval(simIv);
-  document.getElementById('login').style.display = 'flex';
-  document.getElementById('lp').value = '';
-  document.getElementById('app').style.opacity = '0';
+function logout(){
+  curUser=null; clearInterval(simIv);
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('lp').value='';
+  document.getElementById('app').style.opacity='0';
   document.getElementById('umenu').classList.remove('show');
 }
 
-// ═══════════════════════════════════════════════════
-//  SPLASH
-// ═══════════════════════════════════════════════════
-function showSplash() {
-  const sp = document.getElementById('splash');
-  sp.style.display = 'flex';
-  const msgs = ['Loading AI models...','Starting face detector...','Preparing QR scanner...','Connecting cameras...','All systems ready ✓'];
-  let i = 0;
-  const t = setInterval(() => { if (i < msgs.length) document.getElementById('smsg').textContent = msgs[i++]; }, 430);
-  setTimeout(() => {
-    clearInterval(t);
-    sp.classList.add('out');
-    setTimeout(() => { sp.style.display = 'none'; sp.classList.remove('out'); }, 650);
-    document.getElementById('app').style.opacity = '1';
-    initCharts();
-    startSim();
-  }, 2400);
+// ── SPLASH ─────────────────────────────────────────────────
+function showSplash(){
+  const sp=document.getElementById('splash'); sp.style.display='flex';
+  const msgs=['Loading AI models...','Starting face detector...','Initializing QR scanner...','Connecting cameras...','System ready'];
+  let i=0;
+  const t=setInterval(()=>{ if(i<msgs.length) document.getElementById('smsg').textContent=msgs[i++]; },440);
+  setTimeout(()=>{
+    clearInterval(t); sp.classList.add('out');
+    setTimeout(()=>{ sp.style.display='none'; sp.classList.remove('out'); },700);
+    document.getElementById('app').style.opacity='1';
+    initCharts(); startSim();
+  },2500);
 }
 
-// ═══════════════════════════════════════════════════
-//  STATE
-// ═══════════════════════════════════════════════════
-let API = 'https://sentinel-backend-1-9fpz.onrender.com';
-let isLive = true, backendOn = false, simIv = null;
-let alertF = 'all', logF = 'all', selFile = null, curPage = 'dashboard';
-let lChart, dChart, bChart, rChart;
+// ── CLOCK ──────────────────────────────────────────────────
+setInterval(()=>{ document.getElementById('ntime').textContent=new Date().toLocaleTimeString('en-US',{hour12:false}); },1000);
 
-const dets = [], alerts = [], logs = [], faces = [];
-const cfg = { face:true, vehicle:true, qr:true, object:true };
-const tstats = { face:0, vehicle:0, qr:0, object:0 };
-const csum  = { face:0, vehicle:0, qr:0, object:0 };
-const ccnt  = { face:0, vehicle:0, qr:0, object:0 };
-const lineL = [], lineD = [], barD = Array(10).fill(0);
+// ── USER MENU ──────────────────────────────────────────────
+function toggleMenu(){ document.getElementById('umenu').classList.toggle('show'); }
+document.addEventListener('click',e=>{ if(!document.getElementById('avt').contains(e.target)) document.getElementById('umenu').classList.remove('show'); });
 
-const TYPES = [
-  {type:'face',label:'Face',emoji:'🧑'},
-  {type:'vehicle',label:'Vehicle',emoji:'🚗'},
-  {type:'qr',label:'QR Code',emoji:'⬛'},
-  {type:'object',label:'Object',emoji:'📦'},
+// ── NAV ────────────────────────────────────────────────────
+let curPage='dashboard';
+function go(page){
+  curPage=page;
+  document.querySelectorAll('.nitem').forEach(n=>n.classList.remove('on'));
+  const si=document.getElementById('si-'+page); if(si) si.classList.add('on');
+  document.querySelectorAll('.mobitem').forEach(m=>m.classList.remove('on'));
+  const mn=document.getElementById('mn-'+page); if(mn) mn.classList.add('on');
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.getElementById('page-'+page).classList.add('on');
+  document.getElementById('umenu').classList.remove('show');
+  if(page==='analytics') updCharts();
+  if(page==='faces') renderFaces();
+  if(page==='logs') renderLogs();
+}
+
+// ── STATE ──────────────────────────────────────────────────
+let API='https://sentinel-backend-1-9fpz.onrender.com';
+let isLive=true, backendOn=false, simIv=null;
+let alertF='all', logF='all', selFile=null;
+let lChart,dChart,bChart,rChart;
+
+const dets=[],alerts=[],logs=[],faces=[];
+const cfg={face:true,vehicle:true,qr:true,object:true};
+const tstats={face:0,vehicle:0,qr:0,object:0};
+const csum={face:0,vehicle:0,qr:0,object:0};
+const ccnt={face:0,vehicle:0,qr:0,object:0};
+const lineL=[],lineD=[],barD=Array(10).fill(0);
+
+const TYPES=[
+  {type:'face',label:'Face'},
+  {type:'vehicle',label:'Vehicle'},
+  {type:'qr',label:'QR Code'},
+  {type:'object',label:'Object'},
 ];
-const DESCS = {
-  face:    ['Face detected at entrance','Unknown individual identified','Multiple faces in frame','Recognition triggered'],
-  vehicle: ['Vehicle in zone A','Car near restricted area','Motorcycle entering','Truck at loading bay'],
-  qr:      ['QR scanned successfully','Access QR detected','Visitor badge scanned'],
-  object:  ['Unattended bag detected','Object in corridor','Suspicious item flagged','Package detected'],
+const DESCS={
+  face:['Face detected at entrance','Unknown individual identified','Multiple faces in frame','Recognition triggered'],
+  vehicle:['Vehicle detected in zone A','Car near restricted area','Motorcycle entering premises','Truck at loading bay'],
+  qr:['QR code scanned successfully','Access QR detected','Visitor badge scanned'],
+  object:['Unattended bag detected','Object in corridor','Suspicious item flagged','Package detected'],
 };
-const pick = a => a[Math.floor(Math.random()*a.length)];
-const rc   = () => +(0.73 + Math.random()*.24).toFixed(2);
-const ts   = () => new Date().toLocaleTimeString('en-US', {hour12:false});
-const uid  = () => Math.random().toString(36).slice(2,9);
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const rc=()=>+(0.73+Math.random()*.24).toFixed(2);
+const ts=()=>new Date().toLocaleTimeString('en-US',{hour12:false});
+const uid=()=>Math.random().toString(36).slice(2,9);
 
-// ═══════════════════════════════════════════════════
-//  CLOCK
-// ═══════════════════════════════════════════════════
-setInterval(() => document.getElementById('ntime').textContent = new Date().toLocaleTimeString('en-US',{hour12:false}), 1000);
-
-// ═══════════════════════════════════════════════════
-//  NAVIGATION
-// ═══════════════════════════════════════════════════
-function go(page) {
-  curPage = page;
-  // Desktop sidebar
-  document.querySelectorAll('.ni').forEach(n => n.classList.remove('on'));
-  const si = document.getElementById('si-' + page); if (si) si.classList.add('on');
-  // Mobile nav
-  document.querySelectorAll('.mni').forEach(m => m.classList.remove('on'));
-  const mn = document.getElementById('mn-' + page); if (mn) mn.classList.add('on');
-  // Pages
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
-  document.getElementById('page-' + page).classList.add('on');
-  document.getElementById('umenu').classList.remove('show');
-  if (page === 'analytics') updCharts();
-  if (page === 'faces')     renderFaces();
-  if (page === 'logs')      renderLogs();
-}
-
-// User menu
-function toggleMenu() { document.getElementById('umenu').classList.toggle('show'); }
-document.addEventListener('click', e => { if (!document.getElementById('avt').contains(e.target)) document.getElementById('umenu').classList.remove('show'); });
-
-// ═══════════════════════════════════════════════════
-//  BACKEND CONNECTION
-// ═══════════════════════════════════════════════════
-async function connectBackend() {
-  const btn = document.getElementById('conBtn');
-  btn.textContent = '⏳ Connecting...';
-  try {
-    const r = await fetch(`${API}/health`, {signal: AbortSignal.timeout(4000)});
-    if (r.ok) {
-      backendOn = true;
-      document.getElementById('bbdg').textContent = 'BACKEND LIVE';
-      document.getElementById('bbdg').className = 'bbdg live';
-      btn.textContent = '✅ Connected';
-      // Switch to real video stream
-      const img = document.getElementById('realFeed');
-      img.src = `${API}/stream`;
-      img.style.display = 'block';
-      document.getElementById('simFeed').style.display = 'none';
-      document.getElementById('feedhint').textContent = 'Live webcam feed active';
+// ── BACKEND ────────────────────────────────────────────────
+async function connectBackend(){
+  const btn=document.getElementById('conBtn');
+  btn.textContent='Connecting...';
+  try{
+    const r=await fetch(`${API}/health`,{signal:AbortSignal.timeout(4000)});
+    if(r.ok){
+      backendOn=true;
+      document.getElementById('nstatus').textContent='LIVE';
+      document.getElementById('nstatus').className='nstatus live';
+      btn.innerHTML='<svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round"><polyline points="20 6 9 17 4 12"/></svg>Connected';
+      document.getElementById('realFeed').src=`${API}/stream`;
+      document.getElementById('realFeed').style.display='block';
+      document.getElementById('simFeed').style.display='none';
+      document.getElementById('feedhint').textContent='Live webcam feed active';
       clearInterval(simIv);
-      // Connect WebSocket for real-time detections
-      const ws = new WebSocket(API.replace('http','ws') + '/ws');
-      ws.onmessage = e => push(JSON.parse(e.data));
-      ws.onerror = () => startSim();
-      // Poll for DB logs
+      const ws=new WebSocket(API.replace('http','ws')+'/ws');
+      ws.onmessage=e=>push(JSON.parse(e.data));
+      ws.onerror=()=>startSim();
       pollDB();
     }
-  } catch {
-    btn.textContent = '❌ Retry';
-    setTimeout(() => btn.textContent = '🔌 Connect Backend', 2500);
+  }catch{
+    btn.textContent='Retry';
+    setTimeout(()=>{ btn.innerHTML='<svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round"><path d="M5 12.55a11 11 0 0114.08 0M1.42 9a16 16 0 0121.16 0M8.53 16.11a6 6 0 016.95 0M12 20h.01"/></svg>Connect Backend'; },2500);
   }
 }
 
-function saveUrl() {
-  API = document.getElementById('apiInp').value.trim();
-  connectBackend();
+function saveUrl(){ API=document.getElementById('apiInp').value.trim(); connectBackend(); }
+
+function pollDB(){
+  setInterval(async()=>{
+    try{
+      const r=await fetch(`${API}/logs?limit=100`);
+      if(!r.ok) return;
+      const dl=await r.json();
+      dl.forEach(l=>{ if(!logs.find(x=>x.id===l.id)) logs.unshift(l); });
+      if(logs.length>200) logs.length=200;
+      if(curPage==='logs') renderLogs();
+      const sr=await fetch(`${API}/detections/stats`);
+      if(sr.ok){ const s=await sr.json(); Object.assign(tstats,s); updStats(); }
+    }catch{}
+  },3000);
 }
 
-// ═══════════════════════════════════════════════════
-//  FEATURE 5: DATABASE — poll backend for saved logs
-// ═══════════════════════════════════════════════════
-function pollDB() {
-  setInterval(async () => {
-    try {
-      const r = await fetch(`${API}/logs?limit=100`);
-      if (!r.ok) return;
-      const dbLogs = await r.json();
-      // Merge DB logs into local array (avoid duplicates by id)
-      dbLogs.forEach(l => {
-        if (!logs.find(x => x.id === l.id)) {
-          logs.unshift(l);
-        }
-      });
-      if (logs.length > 200) logs.length = 200;
-      if (curPage === 'logs') renderLogs();
-
-      // Update stats from DB
-      const sr = await fetch(`${API}/detections/stats`);
-      if (sr.ok) {
-        const s = await sr.json();
-        Object.assign(tstats, s);
-        updStats();
-      }
-    } catch {}
-  }, 3000);
-}
-
-// ═══════════════════════════════════════════════════
-//  DEMO SIMULATION
-// ═══════════════════════════════════════════════════
-function startSim() {
+// ── SIMULATION ─────────────────────────────────────────────
+function startSim(){
   clearInterval(simIv);
-  simIv = setInterval(() => { if (isLive) fire(); }, 1900 + Math.random()*1100);
-  setTimeout(fire, 400);
-  setTimeout(fire, 1000);
-  setTimeout(fire, 1700);
+  simIv=setInterval(()=>{ if(isLive) fire(); },1900+Math.random()*1100);
+  setTimeout(fire,400); setTimeout(fire,1000); setTimeout(fire,1700);
 }
 
-function fire() {
-  const el = TYPES.filter(t => cfg[t.type]);
-  if (!el.length) return;
-  const t = pick(el);
-  push({ id:uid(), type:t.type, label:t.label, emoji:t.emoji, confidence:rc(), timestamp:ts(), description:pick(DESCS[t.type]), camera:'CAM-01' });
+function fire(){
+  const el=TYPES.filter(t=>cfg[t.type]); if(!el.length) return;
+  const t=pick(el);
+  push({id:uid(),type:t.type,label:t.label,confidence:rc(),timestamp:ts(),description:pick(DESCS[t.type]),camera:'CAM-01'});
 }
 
-// ═══════════════════════════════════════════════════
-//  CORE: PUSH ONE DETECTION INTO EVERYTHING
-// ═══════════════════════════════════════════════════
-function push(d) {
-  if (!isLive && !backendOn) return;
-  d.emoji = d.emoji || {face:'🧑',vehicle:'🚗',qr:'⬛',object:'📦'}[d.type] || '📦';
-
-  // Detections panel
-  dets.unshift(d); if (dets.length > 30) dets.pop();
-  renderPanel();
-
-  // Logs
-  logs.unshift({...d, time: d.timestamp || ts()});
-  if (logs.length > 200) logs.pop();
-
-  // Stats
-  if (d.type in tstats) tstats[d.type]++;
-  if (d.type in csum) { csum[d.type] += parseFloat(d.confidence); ccnt[d.type]++; }
-  updStats();
-
-  // Bbox (demo mode only)
-  if (!backendOn) spawnBbox(d);
-
-  // Alert (60% chance)
-  if (Math.random() > .4) addAlert(d);
-
-  // Chart data
+// ── CORE PUSH ──────────────────────────────────────────────
+function push(d){
+  if(!isLive&&!backendOn) return;
+  dets.unshift(d); if(dets.length>30) dets.pop();
+  logs.unshift({...d,time:d.timestamp||ts()}); if(logs.length>200) logs.pop();
+  if(d.type in tstats) tstats[d.type]++;
+  if(d.type in csum){ csum[d.type]+=parseFloat(d.confidence); ccnt[d.type]++; }
+  updStats(); renderPanel();
+  if(!backendOn) spawnBbox(d);
+  if(Math.random()>.4) addAlert(d);
   chartPush(d);
-
-  // Auto-update logs page if open
-  if (curPage === 'logs') renderLogs();
+  if(curPage==='logs') renderLogs();
 }
 
-// ═══════════════════════════════════════════════════
-//  STATS CARDS
-// ═══════════════════════════════════════════════════
-function updStats() {
-  document.getElementById('stF').textContent = tstats.face;
-  document.getElementById('stV').textContent = tstats.vehicle;
-  document.getElementById('stQ').textContent = tstats.qr;
-  document.getElementById('stO').textContent = tstats.object;
+function updStats(){
+  document.getElementById('stF').textContent=tstats.face;
+  document.getElementById('stV').textContent=tstats.vehicle;
+  document.getElementById('stQ').textContent=tstats.qr;
+  document.getElementById('stO').textContent=tstats.object;
 }
 
-// ═══════════════════════════════════════════════════
-//  DETECTION PANEL (right sidebar)
-// ═══════════════════════════════════════════════════
-function renderPanel() {
-  const el = document.getElementById('detList');
-  if (!dets.length) {
-    el.innerHTML = '<div style="padding:32px 16px;text-align:center;color:var(--tx3);font-size:12px"><div style="font-size:28px;opacity:.2;margin-bottom:8px">🔍</div>Waiting...</div>';
-    return;
-  }
-  el.innerHTML = dets.map(d => `
-    <div class="di">
-      <div class="dd ${d.type}"></div>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:12.5px;font-weight:500">${d.emoji} ${d.label}</div>
-        <div style="font-size:10.5px;color:var(--tx3);font-family:'DM Mono',monospace">${d.timestamp||d.time}</div>
+function renderPanel(){
+  const el=document.getElementById('detList');
+  if(!dets.length){ el.innerHTML='<div style="padding:36px 16px;text-align:center;color:var(--t3)"><svg style="width:28px;height:28px;stroke:currentColor;fill:none;stroke-width:1.3;stroke-linecap:round;display:block;margin:0 auto 10px;opacity:.2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><div style="font-size:12.5px">Waiting for detections</div></div>'; return; }
+  el.innerHTML=dets.map(d=>`
+    <div class="ditem">
+      <div class="ddot ${d.type}"></div>
+      <div class="dinfo">
+        <div class="dtype">${d.label}</div>
+        <div class="dtime">${d.timestamp||d.time}</div>
       </div>
-      <div style="font-size:11px;font-family:'DM Mono',monospace;color:var(--tx3)">${d.confidence}</div>
+      <div class="dconf">${d.confidence}</div>
     </div>`).join('');
-  document.getElementById('detCnt').textContent = dets.length + ' total';
+  document.getElementById('detCnt').textContent=dets.length+' total';
 }
 
-// ═══════════════════════════════════════════════════
-//  BOUNDING BOXES (demo mode overlay)
-// ═══════════════════════════════════════════════════
-function spawnBbox(d) {
-  const L = document.getElementById('bboxL');
-  const w = 10+Math.random()*20, h = 12+Math.random()*18;
-  const x = 5+Math.random()*(90-w), y = 10+Math.random()*(78-h);
-  const b = document.createElement('div');
-  b.className = `bbox ${d.type}`;
-  b.style.cssText = `left:${x}%;top:${y}%;width:${w}%;height:${h}%;opacity:0;transition:opacity .3s`;
-  b.innerHTML = `<div class="blbl">${d.label} <span style="opacity:.7;font-weight:400">${d.confidence}</span></div>`;
+function spawnBbox(d){
+  const L=document.getElementById('bboxLayer');
+  const w=10+Math.random()*20,h=12+Math.random()*18,x=5+Math.random()*(90-w),y=10+Math.random()*(78-h);
+  const b=document.createElement('div');
+  b.className=`bbox ${d.type}`;
+  b.style.cssText=`left:${x}%;top:${y}%;width:${w}%;height:${h}%;opacity:0;transition:opacity .3s`;
+  b.innerHTML=`<div class="bbox-lbl">${d.label} <span style="opacity:.65;font-weight:400">${d.confidence}</span></div>`;
   L.appendChild(b);
-  setTimeout(() => b.style.opacity = '1', 20);
-  setTimeout(() => { b.style.opacity='0'; setTimeout(()=>b.remove(),400); }, 3000+Math.random()*1500);
-  if (L.children.length > 8) L.removeChild(L.firstChild);
+  setTimeout(()=>b.style.opacity='1',20);
+  setTimeout(()=>{ b.style.opacity='0'; setTimeout(()=>b.remove(),400); },3000+Math.random()*1500);
+  if(L.children.length>8) L.removeChild(L.firstChild);
 }
 
-// ═══════════════════════════════════════════════════
-//  ALERTS
-// ═══════════════════════════════════════════════════
-function addAlert(d) {
-  const crit = (d.type==='vehicle' && Math.random()>.5) || d.known===false;
-  const sev  = crit ? 'critical' : d.type==='vehicle' ? 'warning' : 'info';
-  alerts.unshift({...d, severity: sev});
-  if (alerts.length > 60) alerts.pop();
+// ── ALERTS ─────────────────────────────────────────────────
+const ALERT_ICONS={
+  face:'<svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>',
+  vehicle:'<svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8l5-5M16 13l5 5"/></svg>',
+  qr:'<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6v6H9z"/></svg>',
+  object:'<svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>',
+  critical:'<svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+};
+const ACOLORS={face:['var(--purple2)','var(--purple)'],vehicle:['var(--blue2)','var(--blue)'],qr:['var(--green2)','var(--green)'],object:['var(--amber2)','var(--amber)']};
 
-  const cnt = alerts.filter(a => a.severity !== 'info').length;
-  const b = document.getElementById('abadge');
-  b.textContent = cnt; b.style.display = cnt > 0 ? 'grid' : 'none';
-  const mb = document.getElementById('mbdg');
-  mb.textContent = cnt; mb.style.display = cnt > 0 ? 'grid' : 'none';
-
-  if (curPage === 'alerts') renderAlerts();
+function addAlert(d){
+  const crit=(d.type==='vehicle'&&Math.random()>.5)||d.known===false;
+  const sev=crit?'critical':d.type==='vehicle'?'warning':'info';
+  alerts.unshift({...d,severity:sev}); if(alerts.length>60) alerts.pop();
+  const cnt=alerts.filter(a=>a.severity!=='info').length;
+  const b=document.getElementById('abadge'); b.textContent=cnt; b.style.display=cnt>0?'grid':'none';
+  const mb=document.getElementById('mbdg'); mb.textContent=cnt; mb.style.display=cnt>0?'grid':'none';
+  if(curPage==='alerts') renderAlerts();
 }
 
-function renderAlerts() {
-  const el = document.getElementById('alertList');
-  const f  = alertF === 'all' ? alerts : alerts.filter(a => a.severity === alertF);
-  if (!f.length) { el.innerHTML = '<div class="empty"><div class="eico">🔔</div>No alerts to display</div>'; return; }
-  const bg = {face:'rgba(191,90,242,.15)',vehicle:'rgba(10,132,255,.15)',qr:'rgba(48,209,88,.15)',object:'rgba(255,159,10,.15)'};
-  el.innerHTML = f.map(a => `
-    <div class="ai ${a.severity}">
-      <div class="aico" style="background:${a.severity==='critical'?'rgba(255,69,58,.15)':bg[a.type]||bg.face}">${a.severity==='critical'?'🚨':a.emoji}</div>
-      <div class="abdy">
-        <div class="atit">${a.label} Detected</div>
-        <div class="adsc">${a.description}</div>
-      </div>
-      <span class="atim">${a.timestamp||a.time}</span>
-      <span class="tag ${a.severity}">${a.severity.toUpperCase()}</span>
-    </div>`).join('');
+function renderAlerts(){
+  const el=document.getElementById('alertList');
+  const f=alertF==='all'?alerts:alerts.filter(a=>a.severity===alertF);
+  if(!f.length){ el.innerHTML='<div class="empty"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg><p>No alerts</p><span>Detections will appear here</span></div>'; return; }
+  el.innerHTML=f.map(a=>{
+    const isCrit=a.severity==='critical';
+    const col=ACOLORS[a.type]||ACOLORS.face;
+    return `<div class="alert-item ${a.severity}">
+      <div class="aicon" style="background:${isCrit?'var(--red2)':col[0]};color:${isCrit?'var(--red)':col[1]}">${isCrit?ALERT_ICONS.critical:ALERT_ICONS[a.type]||ALERT_ICONS.object}</div>
+      <div class="abody"><div class="atitle">${a.label} Detected</div><div class="adesc">${a.description}</div></div>
+      <span class="atime">${a.timestamp||a.time}</span>
+      <span class="atag ${a.severity}">${a.severity.toUpperCase()}</span>
+    </div>`;
+  }).join('');
 }
 
-function clearAlerts() {
-  alerts.length = 0; renderAlerts();
-  document.getElementById('abadge').style.display = 'none';
-  document.getElementById('mbdg').style.display = 'none';
-}
+function clearAlerts(){ alerts.length=0; renderAlerts(); document.getElementById('abadge').style.display='none'; document.getElementById('mbdg').style.display='none'; }
+function fAlert(f,el){ alertF=f; document.querySelectorAll('#afbar .chip').forEach(c=>c.classList.remove('on')); el.classList.add('on'); renderAlerts(); }
 
-function fAlert(f, el) {
-  alertF = f;
-  document.querySelectorAll('#afbar .chip').forEach(c => c.classList.remove('on'));
-  el.classList.add('on');
-  renderAlerts();
-}
-
-// ═══════════════════════════════════════════════════
-//  LOGS
-// ═══════════════════════════════════════════════════
-function renderLogs() {
-  const s = (document.getElementById('lsrch')?.value||'').toLowerCase();
-  const f = logs.filter(l => (logF==='all'||l.type===logF) && (!s||l.description?.toLowerCase().includes(s)||l.label?.toLowerCase().includes(s)));
-  const b = document.getElementById('logBody');
-  if (!f.length) { b.innerHTML = '<tr><td colspan="5" style="padding:28px;text-align:center;color:var(--tx3)">No logs yet</td></tr>'; return; }
-  b.innerHTML = f.map(l => `
+// ── LOGS ───────────────────────────────────────────────────
+function renderLogs(){
+  const s=(document.getElementById('lsrch')?.value||'').toLowerCase();
+  const f=logs.filter(l=>(logF==='all'||l.type===logF)&&(!s||l.description?.toLowerCase().includes(s)||l.label?.toLowerCase().includes(s)));
+  const b=document.getElementById('logBody');
+  if(!f.length){ b.innerHTML='<tr><td colspan="5" style="padding:28px;text-align:center;color:var(--t3);font-size:12.5px">No detections logged yet</td></tr>'; return; }
+  b.innerHTML=f.map(l=>`
     <tr>
-      <td style="font-family:'DM Mono',monospace;font-size:11.5px;color:var(--tx3)">${l.timestamp||l.time}</td>
+      <td class="tdtime">${l.timestamp||l.time}</td>
       <td><span class="pill ${l.type}">${l.label}</span></td>
-      <td style="color:var(--tx2)">${l.description}</td>
-      <td style="font-family:'DM Mono',monospace;font-size:11.5px;color:var(--tx3)">${l.confidence}</td>
-      <td style="font-family:'DM Mono',monospace;font-size:11.5px;color:var(--tx3)">${l.camera||'CAM-01'}</td>
+      <td class="tddesc">${l.description}</td>
+      <td class="tdconf">${l.confidence}</td>
+      <td class="tdcam">${l.camera||'CAM-01'}</td>
     </tr>`).join('');
 }
 
-function fLog(f, el) {
-  logF = f;
-  document.querySelectorAll('#page-logs .fbar .chip').forEach(c => c.classList.remove('on'));
-  el.classList.add('on');
-  renderLogs();
-}
+function fLog(f,el){ logF=f; document.querySelectorAll('#page-logs .fbar .chip').forEach(c=>c.classList.remove('on')); el.classList.add('on'); renderLogs(); }
 
-function exportCSV() {
-  const rows = [['Time','Type','Description','Confidence','Camera']];
-  logs.forEach(l => rows.push([l.timestamp||l.time, l.label, l.description, l.confidence, l.camera||'CAM-01']));
-  const a = document.createElement('a');
-  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(rows.map(r=>r.join(',')).join('\n'));
-  a.download = `sentinel-logs-${new Date().toISOString().slice(0,10)}.csv`;
+function exportCSV(){
+  const rows=[['Time','Type','Description','Confidence','Camera']];
+  logs.forEach(l=>rows.push([l.timestamp||l.time,l.label,l.description,l.confidence,l.camera||'CAM-01']));
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(rows.map(r=>r.join(',')).join('\n'));
+  a.download=`sentinel-logs-${new Date().toISOString().slice(0,10)}.csv`;
   a.click();
 }
 
-// ═══════════════════════════════════════════════════
-//  FEATURE 2: CHARTS (Chart.js)
-// ═══════════════════════════════════════════════════
-const CO = {
-  responsive: true,
-  maintainAspectRatio: false,
-  animation: {duration: 350},
-  plugins: {legend:{labels:{color:'#86868b',font:{family:'DM Mono',size:11}}}},
-  scales: {
-    x:{ticks:{color:'#48484a',font:{family:'DM Mono',size:10}},grid:{color:'rgba(255,255,255,.04)'}},
-    y:{ticks:{color:'#48484a',font:{family:'DM Mono',size:10}},grid:{color:'rgba(255,255,255,.04)'}}
+// ── CHARTS ─────────────────────────────────────────────────
+const CO={
+  responsive:true,maintainAspectRatio:false,animation:{duration:300},
+  plugins:{legend:{labels:{color:'#52525e',font:{family:'JetBrains Mono',size:10}}}},
+  scales:{
+    x:{ticks:{color:'#32323a',font:{family:'JetBrains Mono',size:9}},grid:{color:'rgba(255,255,255,.03)'}},
+    y:{ticks:{color:'#32323a',font:{family:'JetBrains Mono',size:9}},grid:{color:'rgba(255,255,255,.03)'}}
   }
 };
 
-function initCharts() {
-  const fc = ['rgba(191,90,242,.75)','rgba(10,132,255,.75)','rgba(48,209,88,.75)','rgba(255,159,10,.75)'];
-
-  lChart = new Chart(document.getElementById('lineC'), {
-    type: 'line',
-    data: {labels: lineL, datasets: [{label:'Detections', data: lineD, borderColor:'#0a84ff', backgroundColor:'rgba(10,132,255,.12)', tension:.4, fill:true, pointRadius:3, pointBackgroundColor:'#0a84ff'}]},
-    options: {...CO, plugins:{legend:{display:false}}}
-  });
-
-  dChart = new Chart(document.getElementById('donutC'), {
-    type: 'doughnut',
-    data: {labels:['Face','Vehicle','QR','Object'], datasets:[{data:[0,0,0,0], backgroundColor:fc, borderColor:'#111', borderWidth:3}]},
-    options: {responsive:true, maintainAspectRatio:false, cutout:'68%', plugins:{legend:{position:'bottom',labels:{color:'#86868b',font:{family:'DM Mono',size:11},padding:14}}}}
-  });
-
-  bChart = new Chart(document.getElementById('barC'), {
-    type: 'bar',
-    data: {labels: Array.from({length:10},(_,i)=>(-9+i)+'m'), datasets:[{label:'Count', data:barD, backgroundColor:'rgba(10,132,255,.5)', borderColor:'#0a84ff', borderWidth:1, borderRadius:5}]},
-    options: {...CO, plugins:{legend:{display:false}}}
-  });
-
-  rChart = new Chart(document.getElementById('radarC'), {
-    type: 'radar',
-    data: {
-      labels: ['Face','Vehicle','QR','Object'],
-      datasets: [{label:'Avg Confidence', data:[0,0,0,0], backgroundColor:'rgba(10,132,255,.15)', borderColor:'#0a84ff', pointBackgroundColor:'#0a84ff', pointRadius:4}]
-    },
-    options: {responsive:true, maintainAspectRatio:false,
-      scales:{r:{ticks:{color:'#48484a',backdropColor:'transparent',font:{family:'DM Mono',size:10}},grid:{color:'rgba(255,255,255,.07)'},pointLabels:{color:'#86868b',font:{family:'DM Mono',size:11}}}},
-      plugins:{legend:{display:false}}
-    }
-  });
+function initCharts(){
+  lChart=new Chart(document.getElementById('lineC'),{type:'line',data:{labels:lineL,datasets:[{label:'Detections',data:lineD,borderColor:'#2d7ef7',backgroundColor:'rgba(45,126,247,.08)',tension:.4,fill:true,pointRadius:2,pointBackgroundColor:'#2d7ef7'}]},options:{...CO,plugins:{legend:{display:false}}}});
+  dChart=new Chart(document.getElementById('donutC'),{type:'doughnut',data:{labels:['Face','Vehicle','QR','Object'],datasets:[{data:[0,0,0,0],backgroundColor:['rgba(168,85,247,.8)','rgba(45,126,247,.8)','rgba(35,197,94,.8)','rgba(245,158,11,.8)'],borderColor:'#0e0f12',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{position:'bottom',labels:{color:'#52525e',font:{family:'JetBrains Mono',size:10},padding:14}}}}});
+  bChart=new Chart(document.getElementById('barC'),{type:'bar',data:{labels:Array.from({length:10},(_,i)=>(-9+i)+'m'),datasets:[{label:'Count',data:barD,backgroundColor:'rgba(45,126,247,.4)',borderColor:'#2d7ef7',borderWidth:1,borderRadius:4}]},options:{...CO,plugins:{legend:{display:false}}}});
+  rChart=new Chart(document.getElementById('radarC'),{type:'radar',data:{labels:['Face','Vehicle','QR','Object'],datasets:[{label:'Avg Conf',data:[0,0,0,0],backgroundColor:'rgba(45,126,247,.1)',borderColor:'#2d7ef7',pointBackgroundColor:'#2d7ef7',pointRadius:3}]},options:{responsive:true,maintainAspectRatio:false,scales:{r:{ticks:{color:'#32323a',backdropColor:'transparent',font:{family:'JetBrains Mono',size:9}},grid:{color:'rgba(255,255,255,.05)'},pointLabels:{color:'#52525e',font:{family:'JetBrains Mono',size:10}}}},plugins:{legend:{display:false}}}});
 }
 
-let lSec = 0;
-function chartPush(d) {
-  // Line chart — bucket into 5-second intervals
-  const now = Math.floor(Date.now()/5000);
-  if (now !== lSec) {
-    lSec = now;
-    lineL.push(ts()); lineD.push(1);
-    if (lineL.length > 20) { lineL.shift(); lineD.shift(); }
-  } else if (lineD.length) lineD[lineD.length-1]++;
-
-  // Bar chart
+let lSec=0;
+function chartPush(d){
+  const now=Math.floor(Date.now()/5000);
+  if(now!==lSec){ lSec=now; lineL.push(ts()); lineD.push(1); if(lineL.length>20){lineL.shift();lineD.shift();} }
+  else if(lineD.length) lineD[lineD.length-1]++;
   barD[9]++;
-
-  // Donut chart
-  const idx = {face:0,vehicle:1,qr:2,object:3}[d.type];
-  if (idx !== undefined && dChart) dChart.data.datasets[0].data[idx]++;
-
-  // Radar chart — avg confidence
-  if (idx !== undefined && rChart && ccnt[d.type] > 0)
-    rChart.data.datasets[0].data[idx] = +(csum[d.type]/ccnt[d.type]).toFixed(2);
-
-  if (curPage === 'analytics') updCharts();
+  const idx={face:0,vehicle:1,qr:2,object:3}[d.type];
+  if(idx!==undefined&&dChart) dChart.data.datasets[0].data[idx]++;
+  if(idx!==undefined&&rChart&&ccnt[d.type]>0) rChart.data.datasets[0].data[idx]=+(csum[d.type]/ccnt[d.type]).toFixed(2);
+  if(curPage==='analytics') updCharts();
 }
 
-function updCharts() { lChart?.update(); dChart?.update(); bChart?.update(); rChart?.update(); }
+function updCharts(){ lChart?.update(); dChart?.update(); bChart?.update(); rChart?.update(); }
+setInterval(()=>{ barD.shift(); barD.push(0); bChart?.update(); },60000);
 
-// Shift bar data every 60 seconds (new minute)
-setInterval(() => { barD.shift(); barD.push(0); bChart?.update(); }, 60000);
-
-// ═══════════════════════════════════════════════════
-//  LIVE TOGGLE
-// ═══════════════════════════════════════════════════
-function toggleLive(btn) {
-  isLive = !isLive;
-  btn.textContent = isLive ? '⏸ Pause' : '▶ Resume';
-  document.getElementById('sdot').className = isLive ? 'sdot' : 'sdot off';
-  document.getElementById('slbl').textContent = isLive ? 'LIVE · CAM-01' : 'PAUSED · CAM-01';
-  document.getElementById('livebdg').style.display = isLive ? 'flex' : 'none';
-  if (!isLive) document.getElementById('bboxL').innerHTML = '';
+// ── LIVE TOGGLE ─────────────────────────────────────────────
+function toggleLive(btn){
+  isLive=!isLive;
+  btn.innerHTML=isLive?'<svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>Pause':'<svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round"><polygon points="5 3 19 12 5 21 5 3"/></svg>Resume';
+  document.getElementById('ndot').className=isLive?'ndot':'ndot off';
+  document.getElementById('nlbl').textContent=isLive?'LIVE · CAM-01':'PAUSED · CAM-01';
+  document.getElementById('vlive').style.display=isLive?'flex':'none';
+  if(!isLive) document.getElementById('bboxLayer').innerHTML='';
 }
 
-// ═══════════════════════════════════════════════════
-//  FACE REGISTRY
-// ═══════════════════════════════════════════════════
-function renderFaces() {
-  const el = document.getElementById('faceList');
-  if (!faces.length) {
-    el.innerHTML = '<div style="padding:30px;text-align:center;color:var(--tx3);font-size:13px"><div style="font-size:30px;opacity:.2;margin-bottom:8px">👤</div>No faces registered yet.<br><span style="font-size:12px">Click "+ Register Face" to add someone.</span></div>';
-    return;
-  }
-  el.innerHTML = faces.map(n => `
-    <div style="display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--bd);transition:background .15s"
-      onmouseenter="this.style.background='var(--sf3)'" onmouseleave="this.style.background='transparent'">
-      <div style="width:38px;height:38px;border-radius:50%;background:rgba(191,90,242,.2);display:grid;place-items:center;font-size:18px;flex-shrink:0">🧑</div>
-      <div style="flex:1">
-        <div style="font-size:13.5px;font-weight:500">${n}</div>
-        <div style="font-size:11.5px;color:var(--tx3);font-family:'DM Mono',monospace">Registered · Known Person</div>
-      </div>
-      <button class="btn br" onclick="delFace('${n}')">Remove</button>
+// ── FACES ──────────────────────────────────────────────────
+function renderFaces(){
+  const el=document.getElementById('faceList');
+  if(!faces.length){ el.innerHTML='<div style="padding:30px;text-align:center;color:var(--t3)"><svg style="width:28px;height:28px;stroke:currentColor;fill:none;stroke-width:1.3;stroke-linecap:round;display:block;margin:0 auto 10px;opacity:.2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><div style="font-size:13px;font-weight:500">No persons registered</div><div style="font-size:11.5px;color:var(--t4);margin-top:4px">Click "Add Person" to register someone</div></div>'; return; }
+  el.innerHTML=faces.map(n=>`
+    <div class="face-card">
+      <div class="face-avatar"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+      <div style="flex:1"><div class="face-name">${n}</div><div class="face-sub">Registered · Known</div></div>
+      <button class="btn btn-d" onclick="delFace('${n}')">Remove</button>
     </div>`).join('');
 }
 
-function showModal() { document.getElementById('modal').style.display = 'flex'; }
-function hideModal() {
-  document.getElementById('modal').style.display = 'none';
-  selFile = null;
-  document.getElementById('dlbl').textContent = '📸 Click to upload a photo';
-  document.getElementById('fname').value = '';
-}
-function filePick(i) { selFile = i.files[0]; if (selFile) document.getElementById('dlbl').textContent = '✅ ' + selFile.name; }
+function showModal(){ document.getElementById('modal').style.display='flex'; }
+function hideModal(){ document.getElementById('modal').style.display='none'; selFile=null; document.getElementById('dlbl').textContent='Click to upload a photo'; document.getElementById('fname').value=''; }
+function filePick(i){ selFile=i.files[0]; if(selFile) document.getElementById('dlbl').textContent=selFile.name; }
 
-async function regFace() {
-  const n = document.getElementById('fname').value.trim();
-  if (!n) { alert('Please enter a name'); return; }
+async function regFace(){
+  const n=document.getElementById('fname').value.trim(); if(!n){alert('Enter a name');return;}
   faces.push(n); hideModal(); renderFaces();
-  if (backendOn && selFile) {
-    const f = new FormData(); f.append('name', n); f.append('file', selFile);
-    try { await fetch(`${API}/faces/register?name=${encodeURIComponent(n)}`, {method:'POST',body:f}); } catch {}
-  }
+  if(backendOn&&selFile){ const f=new FormData(); f.append('name',n); f.append('file',selFile); try{await fetch(`${API}/faces/register?name=${encodeURIComponent(n)}`,{method:'POST',body:f});}catch{} }
 }
 
-async function delFace(n) {
-  faces.splice(faces.indexOf(n), 1); renderFaces();
-  if (backendOn) try { await fetch(`${API}/faces/${encodeURIComponent(n)}`, {method:'DELETE'}); } catch {}
+async function delFace(n){
+  faces.splice(faces.indexOf(n),1); renderFaces();
+  if(backendOn) try{await fetch(`${API}/faces/${encodeURIComponent(n)}`,{method:'DELETE'});}catch{}
 }
 
-// ═══════════════════════════════════════════════════
-//  SETTINGS
-// ═══════════════════════════════════════════════════
-async function updCfg(k, v) {
-  cfg[k] = v;
-  if (backendOn) try { await fetch(`${API}/settings`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(cfg)}); } catch {}
+// ── SETTINGS ───────────────────────────────────────────────
+async function updCfg(k,v){
+  cfg[k]=v;
+  if(backendOn) try{await fetch(`${API}/settings`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(cfg)});}catch{}
 }
 </script>
 </body>
 </html>
+
